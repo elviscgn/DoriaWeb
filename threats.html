@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doria Command Center - Threats</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Elegant Dark Taupe Base */
+            --bg-base-top: #423E3B;
+            --bg-base-bottom: #2D2A28;
+            --bg-sidebar: rgba(45, 42, 39, 0.45);
+            
+            /* Premium Glass Panels */
+            --bg-panel: rgba(45, 42, 39, 0.65);
+            --bg-panel-hover: rgba(55, 51, 48, 0.85);
+            
+            /* Typography & Accents */
+            --doria-yellow: #FFFECB;
+            --doria-yellow-dim: rgba(255, 254, 203, 0.1);
+            
+            --text-primary: #F4F1EB;
+            --text-secondary: #D0C9C0;
+            --text-muted: #9E978F;
+            
+            /* Specific Requested Colors */
+            --threat-red: #EF4444;
+            --threat-red-dim: rgba(239, 68, 68, 0.15);
+            
+            --safe-green: #22C55E;
+            --safe-green-dim: rgba(34, 197, 94, 0.15);
+            
+            --warn-high: #F59E0B;
+            --warn-high-dim: rgba(245, 158, 11, 0.15);
+            
+            --warn-med: #EAB308;
+            --warn-med-dim: rgba(234, 179, 8, 0.15);
+            
+            --slop-blue: #3B82F6;
+
+            /* Borders */
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.15);
+            
+            /* Layout Sizes */
+            --radius-lg: 14px;
+            --radius-md: 8px;
+            --gap-main: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 0%, var(--bg-base-top), var(--bg-base-bottom) 80%);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; 
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 254, 203, 0.12); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 254, 203, 0.3); }
+
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            border-top: 1px solid var(--border-highlight);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* -------------------------
+           EXACT ORIGINAL SIDEBAR
+           ------------------------- */
+        .sidebar { width: 240px; height: 100vh; background: var(--bg-sidebar); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; box-shadow: 4px 0 24px rgba(0,0,0,0.05); }
+        .sidebar-header { padding: 28px 24px 20px 24px; display: flex; align-items: center; gap: 12px; transition: opacity 0.2s; cursor: pointer; }
+        .sidebar-header:hover { opacity: 0.8; }
+        .sidebar-header svg { filter: drop-shadow(0 0 8px rgba(255,254,203,0.3)); }
+        .wordmark-text { font-family: 'Major Mono Display', monospace; font-size: 26px; font-weight: 600; color: var(--doria-yellow); line-height: 1; margin-top: 2px; letter-spacing: -1px; }
+
+        .nav-section-title { font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; padding: 0 24px; margin: 16px 0 8px 0; opacity: 0.7; }
+        .sidebar-nav { flex-grow: 1; padding: 0 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        
+        .nav-item { height: 36px; padding: 0 12px; margin: 0 4px; display: flex; align-items: center; gap: 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; text-decoration: none; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .nav-item i { width: 16px; height: 16px; transition: all 0.25s ease; }
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); transform: translateX(4px); }
+        .nav-item:hover i { transform: scale(1.1); color: var(--text-secondary); }
+        
+        .nav-item.active { background: linear-gradient(90deg, rgba(255,254,203,0.08) 0%, transparent 100%); color: var(--doria-yellow); font-weight: 600; }
+        .nav-item.active i { color: var(--doria-yellow); }
+        .nav-item.active::before { content: ''; position: absolute; left: -4px; top: 50%; transform: translateY(-50%); height: 60%; width: 3px; background: var(--doria-yellow); border-radius: 0 4px 4px 0; box-shadow: 0 0 12px rgba(255, 254, 203, 0.5); }
+
+        .sidebar-bottom-container { flex-shrink: 0; padding: 0 12px 16px 12px; display: flex; flex-direction: column; gap: 6px; }
+
+        .security-health-widget { background: rgba(0, 0, 0, 0.18); border: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; margin: 8px 4px; display: flex; align-items: center; gap: 14px; position: relative; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); transition: all 0.3s ease; }
+        .security-health-widget:hover { border-color: rgba(242, 204, 96, 0.2); background: rgba(0, 0, 0, 0.25); }
+
+        .health-ring-container { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .health-ring-glow { position: absolute; width: 28px; height: 28px; background: #F2CC60; filter: blur(14px); opacity: 0.25; border-radius: 50%; z-index: 0; }
+        .health-ring-svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); width: 100%; height: 100%; z-index: 1; }
+        .health-ring-svg .track { stroke: rgba(255,255,255,0.06); }
+        .health-ring-svg .progress { stroke: #F2CC60; }
+        .health-ring-text { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-primary); z-index: 2; }
+
+        .health-info { display: flex; flex-direction: column; gap: 3px; z-index: 1; }
+        .health-title { font-size: 12px; color: var(--text-primary); font-weight: 600; letter-spacing: 0.2px; }
+        .health-subtitle { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+        .sidebar-row { display: flex; align-items: center; padding: 8px 12px; margin: 0 4px; cursor: pointer; border-radius: var(--radius-md); transition: all 0.2s ease; text-decoration: none; position: relative; }
+        .sidebar-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+        .row-icon { display: flex; align-items: center; color: var(--text-muted); transition: all 0.2s ease; }
+        .sidebar-row:hover .row-icon { color: var(--text-primary); transform: rotate(10deg); }
+        .row-text { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-left: 12px; flex: 1; transition: color 0.2s ease; }
+        .sidebar-row:hover .row-text { color: var(--text-primary); }
+
+        .row-badge { background-color: var(--threat-red); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; border-radius: 12px; padding: 2px 7px; position: relative; }
+        .row-badge::before { content: ''; position: absolute; inset: 0; border-radius: 12px; border: 1px solid var(--threat-red); animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
+
+        .pro-badge { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); color: #FFFFFF; font-size: 8px; font-weight: 800; font-family: 'JetBrains Mono', monospace; padding: 2px 5px; border-radius: 4px; letter-spacing: 0.5px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 6px rgba(109, 40, 217, 0.35); border: 1px solid rgba(139, 92, 246, 0.4); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+
+        .profile-card-wrapper { position: relative; margin-top: 4px; }
+        .profile-card { display: flex; align-items: center; padding: 8px 10px; margin: 0 4px; cursor: pointer; border-radius: 10px; background: rgba(0, 0, 0, 0.15); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .profile-card:hover, .profile-card.active { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .profile-container { position: relative; display: flex; align-items: center; }
+        .profile-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
+        .online-dot { position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background-color: var(--safe-green); border: 2px solid var(--bg-base-bottom); border-radius: 50%; box-shadow: 0 0 6px rgba(126,231,135,0.4); }
+        .profile-info { margin-left: 10px; flex: 1; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+        .profile-name-row { display: flex; align-items: center; gap: 6px; }
+        .profile-name { font-size: 13px; color: var(--text-primary); font-weight: 600; letter-spacing: 0.1px; white-space: nowrap; }
+        .profile-role { font-size: 10.5px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+        .profile-action { display: flex; align-items: center; justify-content: center; color: var(--text-muted); padding: 6px; border-radius: 6px; transition: all 0.2s ease; margin-left: auto; }
+        .profile-card:hover .profile-action, .profile-card.active .profile-action { color: var(--text-primary); }
+
+        .profile-flyout { position: absolute; bottom: calc(100% + 8px); left: 4px; right: 4px; width: auto; background: linear-gradient(180deg, #302D2A 0%, #262422 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05); padding: 6px; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.96); transform-origin: bottom center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
+        .profile-flyout.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .flyout-header { display: flex; gap: 10px; align-items: center; padding: 10px; background: rgba(0,0,0,0.15); border-radius: 8px; margin-bottom: 6px; }
+        .flyout-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .flyout-text { display: flex; flex-direction: column; gap: 2px; }
+        .flyout-name { font-size: 12.5px; color: var(--text-primary); font-weight: 600; letter-spacing: 0.1px; }
+        .flyout-email { font-size: 10px; color: var(--text-muted); }
+        .flyout-menu { display: flex; flex-direction: column; gap: 2px; }
+        .flyout-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; font-size: 11.5px; color: var(--text-secondary); font-weight: 500; text-decoration: none; transition: all 0.15s ease; }
+        .flyout-item svg { width: 14px; height: 14px; color: var(--text-muted); transition: color 0.15s ease; stroke-width: 1.5; }
+        .flyout-item:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+        .flyout-item:hover svg { color: var(--text-secondary); }
+        .flyout-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); margin: 4px 0; }
+        .flyout-logout { color: var(--threat-red); }
+        .flyout-logout svg { color: var(--threat-red); opacity: 0.8;}
+        .flyout-logout:hover { background: rgba(255, 123, 114, 0.1); color: var(--threat-red); }
+        .flyout-logout:hover svg { color: var(--threat-red); opacity: 1; }
+
+        /* -------------------------
+           MAIN CONTENT AREA
+           ------------------------- */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar { height: 60px; flex-shrink: 0; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; }
+        .page-title { font-size: 17px; font-weight: 500; color: var(--text-primary); letter-spacing: 0.2px; }
+
+        .scan-bar { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-light); border-radius: 20px; padding: 4px 5px 4px 16px; width: 320px; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .scan-bar:focus-within { border-color: rgba(255, 254, 203, 0.5); box-shadow: 0 0 0 3px var(--doria-yellow-dim); }
+        .scan-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 12px; }
+        .scan-input::placeholder { color: var(--text-muted); }
+
+        /* Button Enhancements */
+        .scan-btn { background: var(--doria-yellow); color: #2A2725; font-family: inherit; font-weight: 600; font-size: 11.5px; border-radius: 16px; padding: 7px 16px; border: none; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .scan-btn:hover { transform: scale(1.03); box-shadow: 0 4px 12px rgba(255,254,203,0.25); }
+        .scan-btn:active { transform: scale(0.96); box-shadow: 0 1px 4px rgba(255,254,203,0.15); }
+
+        .ghost-btn { background: transparent; color: var(--text-primary); font-family: inherit; font-weight: 600; font-size: 11.5px; border-radius: 16px; padding: 7px 16px; border: 1px solid var(--border-highlight); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .ghost-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); transform: scale(1.02); }
+        .ghost-btn:active { transform: scale(0.96); }
+
+        .content-area {
+            flex: 1; overflow-y: auto; padding: 0 32px 32px 32px; display: flex; flex-direction: column; gap: var(--gap-main);
+            max-width: 1100px; margin: 0 auto; width: 100%;
+        }
+
+        /* SUMMARY BAR */
+        .summary-bar { flex: 0 0 auto; flex-direction: row; align-items: center; justify-content: space-between; padding: 20px 24px; margin-top: 16px; }
+        .summary-left { display: flex; align-items: center; gap: 16px; }
+        .summary-number { font-size: 32px; font-weight: 700; color: var(--threat-red); line-height: 1; }
+        .summary-text { display: flex; flex-direction: column; gap: 2px; }
+        .summary-title { font-size: 14px; font-weight: 500; color: #F1F5F9; }
+        .summary-subtitle { font-size: 12px; font-weight: 400; color: #64748B; }
+
+        .summary-center { display: flex; align-items: center; gap: 12px; }
+        .pill-badge { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .pill-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .pill-crit { background: var(--threat-red-dim); color: var(--threat-red); border-color: rgba(239,68,68,0.25); }
+        .pill-crit .dot { background: var(--threat-red); box-shadow: 0 0 6px var(--threat-red); }
+        .pill-high { background: var(--warn-high-dim); color: var(--warn-high); border-color: rgba(245,158,11,0.25); }
+        .pill-high .dot { background: var(--warn-high); box-shadow: 0 0 6px var(--warn-high); }
+        .pill-med { background: var(--warn-med-dim); color: var(--warn-med); border-color: rgba(234,179,8,0.25); }
+        .pill-med .dot { background: var(--warn-med); box-shadow: 0 0 6px var(--warn-med); }
+
+        .summary-right { display: flex; align-items: center; gap: 12px; }
+
+        /* FILTER BAR */
+        .filter-bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; padding: 0 4px; }
+        .filter-pills { display: flex; align-items: center; gap: 6px; }
+        .filter-pill { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.25s ease; position: relative; }
+        .filter-pill:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+        .filter-pill.active { background: linear-gradient(90deg, rgba(255,254,203,0.08) 0%, transparent 100%); color: var(--doria-yellow); font-weight: 600; }
+        .filter-pill.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 60%; width: 3px; background: var(--doria-yellow); border-radius: 0 4px 4px 0; box-shadow: 0 0 12px rgba(255, 254, 203, 0.5); }
+        
+        .search-mini { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-light); border-radius: 8px; padding: 6px 12px; width: 220px; transition: all 0.3s ease; }
+        .search-mini:focus-within { border-color: rgba(255, 254, 203, 0.5); box-shadow: 0 0 0 2px var(--doria-yellow-dim); }
+        .search-mini input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 12px; }
+        .search-mini input::placeholder { color: var(--text-muted); }
+
+        /* THREAT CARDS & FILTER ANIMATION */
+        .threat-list { display: flex; flex-direction: column; gap: var(--gap-main); padding-bottom: 24px;}
+        
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .threat-card { 
+            position: relative; padding: 20px 24px; cursor: pointer; border-left: 3px solid var(--card-accent);
+            animation: cardFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex;
+        }
+        .threat-card:hover { border-color: rgba(255, 255, 255, 0.15); border-left-color: var(--card-accent); background: var(--bg-panel-hover); }
+        
+        .card-crit { --card-accent: var(--threat-red); }
+        .card-high { --card-accent: var(--warn-high); }
+        .card-med { --card-accent: var(--warn-med); }
+
+        .threat-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+        
+        .title-row { display: flex; align-items: center; gap: 14px; margin-bottom: 6px;}
+        .threat-pkg-name { font-size: 17px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.2px;}
+        
+        /* Unified Badges */
+        .badge-group { display: flex; align-items: center; gap: 8px; }
+        .threat-severity, .threat-status {
+            font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 6px;
+            display: flex; align-items: center; gap: 5px; letter-spacing: 0.5px; text-transform: uppercase;
+            height: 22px; 
+        }
+        
+        .threat-severity.crit { background: var(--threat-red); color: #fff; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25); }
+        .threat-severity.high { background: var(--warn-high); color: #fff; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25); }
+        .threat-severity.med { background: var(--warn-med); color: #fff; box-shadow: 0 2px 6px rgba(234, 179, 8, 0.25); }
+        
+        .threat-status.blocked { background: var(--threat-red-dim); color: var(--threat-red); border: 1px solid rgba(239,68,68,0.3); }
+        .threat-status.flagged { background: var(--warn-high-dim); color: var(--warn-high); border: 1px solid rgba(245,158,11,0.3); }
+        .threat-status.outdated { background: var(--warn-med-dim); color: var(--warn-med); border: 1px solid rgba(234,179,8,0.3); }
+        
+        /* Simplified Risk Ring */
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .risk-container { display: flex; flex-direction: column; align-items: center; gap: 2px;}
+        .risk-ring { position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+        .risk-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .risk-ring .track { stroke: rgba(255,255,255,0.06); stroke-width: 2.5; fill: none; }
+        .risk-ring .progress { stroke: var(--card-accent); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+        .risk-num { position: absolute; font-size: 11px; font-weight: 800; font-family: 'JetBrains Mono'; }
+        .risk-label { font-size: 8px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+
+        .action-dots { color: var(--text-muted); cursor: pointer; padding: 2px; transition: color 0.2s;}
+        .action-dots:hover { color: var(--text-primary); }
+
+        /* Meta Row */
+        .threat-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; margin-top: 4px;}
+        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+        .meta-item i { width: 14px; height: 14px; opacity: 0.7;}
+        .meta-val { color: var(--text-primary); font-weight: 500; font-size: 11.5px;}
+        .meta-val.mono { background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px; font-size: 11px; letter-spacing: 0.2px; font-weight: 600;}
+
+        .threat-tags { display: flex; gap: 8px; margin-bottom: 12px; }
+        .eco-badge { font-size: 9.5px; font-weight: 600; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; background: rgba(255,255,255,0.06); color: var(--text-secondary); letter-spacing: 0.5px;}
+
+        .threat-desc { font-size: 13px; color: #A1A1AA; line-height: 1.5; margin-bottom: 20px; max-width: 92%; }
+
+        /* ML Score Headers */
+        .scores-grid { display: flex; gap: 32px; margin-bottom: 16px; }
+        .ml-section { flex: 1; display: flex; flex-direction: column; justify-content: center;}
+        .ml-label-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+        .ml-label { font-size: 9.5px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+        .ml-score { font-size: 12px; font-weight: 600; }
+        
+        .progress-bg { width: 100%; height: 4px; background: rgba(0,0,0,0.25); border-radius: 2px; position: relative; overflow: visible;}
+        .progress-fill { height: 100%; border-radius: 2px; position: relative; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);}
+        .progress-fill::after { content: ''; position: absolute; right: 0; top: -2px; width: 8px; height: 8px; background: inherit; border-radius: 50%; box-shadow: 0 0 8px inherit; }
+
+        .threat-actions { display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-light); padding-top: 16px; }
+
+        /* ACCORDION / EXPANDED STATE */
+        .threat-expanded-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+        .threat-card.expanded .threat-expanded-wrapper { grid-template-rows: 1fr; }
+        .threat-expanded-inner { overflow: hidden; opacity: 0; transition: opacity 200ms ease; transition-delay: 50ms; }
+        .threat-card.expanded .threat-expanded-inner { opacity: 1; }
+        
+        .expanded-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 16px; border-top: 1px solid var(--border-light); padding-top: 24px; }
+
+        .panel-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; margin-bottom: 16px;}
+        
+        /* Code Findings */
+        .ast-pills { display: flex; flex-direction: column; gap: 8px; }
+        .ast-pill { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 6px; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;}
+        .ast-pill .ast-type { color: var(--text-primary); font-weight: 600; font-family: 'Inter', sans-serif;}
+        .ast-pill .ast-code { color: var(--threat-red); }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .status-blocked { background: var(--threat-red); box-shadow: 0 0 6px var(--threat-red); }
+
+        .timeline { position: relative; list-style: none; display: flex; flex-direction: column; gap: 14px; margin-left: 6px;}
+        .timeline::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--border-highlight) 80%, transparent); }
+        .timeline-step { display: flex; align-items: flex-start; gap: 14px; position: relative; }
+        
+        .step-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--bg-panel); border: 2.5px solid; position: relative; z-index: 1; flex-shrink: 0; margin-top: 2px; }
+        .step-dot.green { border-color: var(--safe-green); box-shadow: 0 0 6px rgba(34,197,94,0.3); }
+        .step-dot.red { border-color: var(--threat-red); box-shadow: 0 0 6px rgba(239,68,68,0.3); }
+        .step-dot.yellow { border-color: var(--doria-yellow); box-shadow: 0 0 6px rgba(255,254,203,0.3); }
+        
+        .step-label { font-size: 12.5px; color: var(--text-primary); font-weight: 500; line-height: 1.2; }
+        .step-sublabel { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        /* TOAST NOTIFICATIONS */
+        .toast-container { position: fixed; bottom: 32px; right: 32px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; pointer-events: none;}
+        .toast {
+            background: var(--bg-panel-hover); border: 1px solid var(--border-highlight);
+            color: var(--text-primary); padding: 14px 20px; border-radius: 12px;
+            display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-success i { color: var(--safe-green); }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--doria-yellow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 14v-8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v2"></path>
+                <path d="M4 10h12"></path>
+                <path d="M10 4v10"></path>
+                <path d="M4 18v-2h6"></path>
+                <path d="M11 14.5l4.5 -2l4.5 2v4c0 3 -2.5 6 -4.5 7c-2 -1 -4.5 -4 -4.5 -7v-4z"></path>
+            </svg>
+            <div class="wordmark-text">Doria</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Platform</div>
+            <a href="./dashboard.html" class="nav-item"><i data-lucide="layout-dashboard"></i> Overview</a>
+            <a href="./orgs.html" class="nav-item"><i data-lucide="folder-code"></i> Codebases</a>
+            <a href="./threats.html" class="nav-item active"><i data-lucide="shield-alert"></i> Threats</a>
+            <div class="nav-section-title" style="margin-top: 16px;">System</div>
+            <a href="./settings.html" class="nav-item"><i data-lucide="settings"></i> Settings</a>
+        </nav>
+        
+        <div class="sidebar-bottom-container">
+            <div class="security-health-widget">
+                <div class="health-ring-container">
+                    <div class="health-ring-glow"></div>
+                    <svg width="40" height="40" viewBox="0 0 40 40" class="health-ring-svg">
+                        <circle cx="20" cy="20" r="17" fill="none" stroke-width="3" class="track"></circle>
+                        <circle cx="20" cy="20" r="17" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="106.81" stroke-dashoffset="28.84" class="progress"></circle>
+                    </svg>
+                    <span class="health-ring-text">73</span>
+                </div>
+                <div class="health-info">
+                    <span class="health-title">Security Health</span>
+                    <span class="health-subtitle">3 repos monitored</span>
+                </div>
+            </div>
+
+            <div class="sidebar-row" onclick="return false;" style="margin-top: 4px; margin-bottom: 4px;">
+                <div class="row-icon"><i data-lucide="bell" style="width: 17px; height: 17px;"></i></div>
+                <span class="row-text">Alerts</span>
+                <span class="row-badge">3</span>
+            </div>
+
+            <div class="profile-card-wrapper">
+                <div class="profile-flyout" id="profile-flyout">
+                    <div class="flyout-header">
+                        <img src="https://avatars.githubusercontent.com/u/96030189?v=4" class="flyout-avatar" alt="Elvis Chege">
+                        <div class="flyout-text">
+                            <span class="flyout-name">Elvis Chege</span>
+                            <span class="flyout-email mono">elvis@doria.dev</span>
+                        </div>
+                    </div>
+                    <div class="flyout-menu">
+                        <a href="#" class="flyout-item"><i data-lucide="user"></i> Account Settings</a>
+                        <a href="#" class="flyout-item"><i data-lucide="credit-card"></i> Billing & Plan</a>
+                        <a href="#" class="flyout-item"><i data-lucide="zap"></i> Active Features <span class="pro-badge" style="margin-left: auto;">PRO</span></a>
+                        <div class="flyout-divider"></div>
+                        <a href="#" class="flyout-item"><i data-lucide="shield"></i> Security Log</a>
+                        <a href="#" class="flyout-item"><i data-lucide="book"></i> Documentation</a>
+                        <div class="flyout-divider"></div>
+                        <a href="#" class="flyout-item flyout-logout"><i data-lucide="log-out"></i> Sign Out</a>
+                    </div>
+                </div>
+
+                <div class="profile-card" id="profile-btn">
+                    <div class="profile-container">
+                        <img src="https://avatars.githubusercontent.com/u/96030189?v=4" class="profile-avatar" alt="User Avatar">
+                        <div class="online-dot"></div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name-row"><span class="profile-name">Elvis Chege</span><span class="pro-badge">PRO</span></div>
+                        <span class="profile-role">Workspace Admin</span>
+                    </div>
+                    <div class="profile-action"><i data-lucide="chevrons-up-down" style="width: 14px; height: 14px;"></i></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        
+        <header class="topbar">
+            <h1 class="page-title">Security Threats</h1>
+            <div class="scan-bar">
+                <i data-lucide="terminal-square" style="width:14px;color:var(--text-muted)"></i>
+                <input type="text" class="scan-input mono" placeholder="doria scan repo..." spellcheck="false">
+                <button class="scan-btn" onclick="showToast('Scanning workspace for vulnerabilities...')">Scan</button>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- Summary Bar -->
+            <div class="glass-panel summary-bar">
+                <div class="summary-left">
+                    <span class="summary-number mono">7</span>
+                    <div class="summary-text">
+                        <div class="summary-title">Active Threats</div>
+                        <div class="summary-subtitle">Requires immediate attention</div>
+                    </div>
+                </div>
+                <div class="summary-center">
+                    <div class="pill-badge pill-crit"><span class="dot"></span> 3 Critical</div>
+                    <div class="pill-badge pill-high"><span class="dot"></span> 2 High</div>
+                    <div class="pill-badge pill-med"><span class="dot"></span> 2 Medium</div>
+                </div>
+                <div class="summary-right">
+                    <button class="ghost-btn" onclick="showToast('Report downloaded to your machine.', 'success')"><i data-lucide="download" style="width:14px;"></i> Export Report</button>
+                    <button class="scan-btn" onclick="showToast('Resolving vulnerabilities with safe versions...', 'success')"><i data-lucide="shield-check" style="width:14px;"></i> Fix All with Doria</button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-pills">
+                    <button class="filter-pill active" data-filter="all">All</button>
+                    <button class="filter-pill" data-filter="critical">Critical</button>
+                    <button class="filter-pill" data-filter="high">High</button>
+                    <button class="filter-pill" data-filter="medium">Medium</button>
+                    <button class="filter-pill" data-filter="slopsquat">Slopsquat</button>
+                    <button class="filter-pill" data-filter="typosquat">Typosquat</button>
+                    <button class="filter-pill" data-filter="malicious code">Malicious Code</button>
+                </div>
+                <div class="search-mini">
+                    <i data-lucide="search" style="width:14px;color:var(--text-muted)"></i>
+                    <input type="text" class="mono" placeholder="Search threats..." spellcheck="false">
+                </div>
+            </div>
+
+            <!-- Threat Cards List -->
+            <div class="threat-list" id="threat-list">
+                
+                <!-- Card 1 (Critical, Typo, Slop, Malicious) -->
+                <div class="glass-panel threat-card card-crit expanded" data-severity="critical" data-types="typosquat slopsquat malicious code" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">co1ors@1.0.0</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity crit">CRITICAL</span>
+                                    <span class="threat-status blocked"><i data-lucide="x-circle" style="width:12px;"></i>BLOCKED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">main</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">Just now</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container">
+                                <div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="5.6" class="progress"/></svg><span class="risk-num" style="color:var(--threat-red);">94</span></div>
+                                <span class="risk-label">Risk</span>
+                            </div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags">
+                        <span class="eco-badge">Typosquat</span>
+                        <span class="eco-badge">Slopsquat</span>
+                        <span class="eco-badge">Malicious Code</span>
+                    </div>
+                    
+                    <div class="threat-desc">
+                        Impersonates `colors`. Executes hidden shell commands and attempts unauthorized network access during installation. High risk of credential theft.
+                    </div>
+                    
+                    <div class="scores-grid">
+                        <div class="ml-section">
+                            <div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--threat-red);">94%</span></div>
+                            <div class="progress-bg"><div class="progress-fill" style="background:var(--threat-red); width:94%;"></div></div>
+                        </div>
+                        <div class="ml-section">
+                            <div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--warn-high);">87%</span></div>
+                            <div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:87%;"></div></div>
+                        </div>
+                        <div class="ml-section">
+                            <div class="ml-label-row"><span class="ml-label">AI Hallucination Match</span><span class="ml-score mono" style="color:var(--slop-blue);">91%</span></div>
+                            <div class="progress-bg"><div class="progress-fill" style="background:var(--slop-blue); width:91%;"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper">
+                        <div class="threat-expanded-inner">
+                            <div class="expanded-grid">
+                                <div class="ast-column">
+                                    <div class="panel-title"><i data-lucide="cpu" style="width:14px;"></i> Malicious Code Traces</div>
+                                    <div class="ast-pills">
+                                        <div class="ast-pill">
+                                            <div class="status-dot status-blocked"></div> 
+                                            <div><span class="ast-type">Shell Execution</span> &middot; <span class="ast-code">child_process.exec()</span></div>
+                                        </div>
+                                        <div class="ast-pill">
+                                            <div class="status-dot status-blocked"></div> 
+                                            <div><span class="ast-type">Outbound Connection</span> &middot; <span class="ast-code">45.33.32.156:8080</span></div>
+                                        </div>
+                                        <div class="ast-pill">
+                                            <div class="status-dot status-blocked"></div> 
+                                            <div><span class="ast-type">Obfuscated Eval</span> &middot; <span class="ast-code">Buffer.from(x).toString()</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-column">
+                                    <div class="panel-title"><i data-lucide="zap" style="width:14px;"></i> Automated Response</div>
+                                    <ul class="timeline">
+                                        <li class="timeline-step">
+                                            <div class="step-dot green"></div>
+                                            <div><div class="step-label">AST Scan Completed</div><div class="step-sublabel">0.3s &middot; Findings logged</div></div>
+                                        </li>
+                                        <li class="timeline-step">
+                                            <div class="step-dot red"></div>
+                                            <div><div class="step-label">Threat Confirmed & Blocked</div><div class="step-sublabel">0.8s &middot; 94% behavioral score met</div></div>
+                                        </li>
+                                        <li class="timeline-step">
+                                            <div class="step-dot red"></div>
+                                            <div><div class="step-label">Safe Version Unresolved</div><div class="step-sublabel">1.1s &middot; No safe replacement found</div></div>
+                                        </li>
+                                        <li class="timeline-step">
+                                            <div class="step-dot yellow in-progress"></div>
+                                            <div><div class="step-label">Awaiting Manual Review</div><div class="step-sublabel">Now &middot; User intervention required</div></div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-actions">
+                        <button class="ghost-btn" onclick="event.stopPropagation()">View Details</button>
+                        <button class="scan-btn" onclick="showToast('Threat co1ors@1.0.0 remediated.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 (Critical, Slop) -->
+                <div class="glass-panel threat-card card-crit" data-severity="critical" data-types="slopsquat" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">huggingface-cli@0.1.0</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity crit">CRITICAL</span>
+                                    <span class="threat-status blocked"><i data-lucide="x-circle" style="width:12px;"></i>BLOCKED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">develop</span></div>
+                                <div class="meta-item"><i data-lucide="file-text"></i> <span class="meta-val mono">requirements.txt</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">12m ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="10.3" class="progress"/></svg><span class="risk-num" style="color:var(--threat-red);">89</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Slopsquat</span></div>
+                    <div class="threat-desc">Matches known AI hallucination patterns. Package is newly created with no stars or documentation.</div>
+                    
+                    <div class="scores-grid">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--threat-red);">89%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--threat-red); width:89%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--threat-red);">96%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--threat-red); width:96%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">AI Hallucination Match</span><span class="ml-score mono" style="color:var(--slop-blue);">94%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--slop-blue); width:94%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat huggingface-cli@0.1.0 remediated.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+                <!-- Card 3 (Critical, Malicious) -->
+                <div class="glass-panel threat-card card-crit" data-severity="critical" data-types="malicious code" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">env-stealer@9.9.9</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity crit">CRITICAL</span>
+                                    <span class="threat-status blocked"><i data-lucide="x-circle" style="width:12px;"></i>BLOCKED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">main</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">45m ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="0.9" class="progress"/></svg><span class="risk-num" style="color:var(--threat-red);">99</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Malicious Code</span></div>
+                    <div class="threat-desc">Reads and exfiltrates environment variables to an external server. Confirmed credential harvesting.</div>
+                    
+                    <div class="scores-grid">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--threat-red);">99%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--threat-red); width:99%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--warn-high);">78%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:78%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">AI Hallucination Match</span><span class="ml-score mono" style="color:var(--slop-blue);">23%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--slop-blue); width:23%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat env-stealer remediated.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+                <!-- Card 4 (High, Typo) -->
+                <div class="glass-panel threat-card card-high" data-severity="high" data-types="typosquat" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">lod4sh@4.17.21</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity high">HIGH</span>
+                                    <span class="threat-status flagged"><i data-lucide="alert-triangle" style="width:12px;"></i>FLAGGED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">main</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">2h ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="22.6" class="progress"/></svg><span class="risk-num" style="color:var(--warn-high);">76</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Typosquat</span></div>
+                    <div class="threat-desc">Impersonates `lodash`. Newly created package with unusual download velocity spikes.</div>
+                    
+                    <div class="scores-grid">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--warn-high);">76%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:76%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--warn-high);">82%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:82%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">AI Hallucination Match</span><span class="ml-score mono" style="color:var(--slop-blue);">67%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--slop-blue); width:67%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat lod4sh remediated.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+                <!-- Card 5 (High, Typo) -->
+                <div class="glass-panel threat-card card-high" data-severity="high" data-types="typosquat" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">reqqest@2.88.0</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity high">HIGH</span>
+                                    <span class="threat-status flagged"><i data-lucide="alert-triangle" style="width:12px;"></i>FLAGGED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">api-v2</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">5h ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="19.7" class="progress"/></svg><span class="risk-num" style="color:var(--warn-high);">79</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Typosquat</span></div>
+                    <div class="threat-desc">Impersonates `request`. Makes unauthorized HTTP calls during installation scripts.</div>
+                    
+                    <div class="scores-grid">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--warn-high);">71%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:71%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--warn-high);">79%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--warn-high); width:79%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">AI Hallucination Match</span><span class="ml-score mono" style="color:var(--slop-blue);">58%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--slop-blue); width:58%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat reqqest remediated.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+                <!-- Card 6 (Medium) -->
+                <div class="glass-panel threat-card card-med" data-severity="medium" data-types="outdated" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">axios@0.21.1</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity med">MEDIUM</span>
+                                    <span class="threat-status outdated"><i data-lucide="clock" style="width:12px;"></i>OUTDATED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">legacy-app</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">1d ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="62.1" class="progress"/></svg><span class="risk-num" style="color:var(--warn-med);">34</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Outdated</span></div>
+                    <div class="threat-desc">CVE-2023-45857 credential exposure via HTTP headers. Current version 0.21.1 vulnerable. Safe version 1.6.0 available. No malicious code detected.</div>
+                    
+                    <div class="scores-grid" style="width: 66%;">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--safe-green);">34%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--safe-green); width:34%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--safe-green);">12%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--safe-green); width:12%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat axios updated to 1.6.0.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+                <!-- Card 7 (Medium) -->
+                <div class="glass-panel threat-card card-med" data-severity="medium" data-types="outdated" onclick="toggleCard(event, this)">
+                    <div class="threat-header">
+                        <div class="header-left">
+                            <div class="title-row">
+                                <div class="threat-pkg-name mono">minimist@1.2.5</div>
+                                <div class="badge-group">
+                                    <span class="threat-severity med">MEDIUM</span>
+                                    <span class="threat-status outdated"><i data-lucide="clock" style="width:12px;"></i>OUTDATED</span>
+                                </div>
+                            </div>
+                            <div class="threat-meta">
+                                <div class="meta-item"><i data-lucide="git-branch"></i> <span class="meta-val mono">main</span></div>
+                                <div class="meta-item"><i data-lucide="file-json"></i> <span class="meta-val mono">package-lock.json</span></div>
+                                <div class="meta-item"><i data-lucide="clock"></i> <span class="meta-val">2d ago</span></div>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <div class="risk-container"><div class="risk-ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" class="track"/><circle cx="18" cy="18" r="15" stroke-dasharray="94.2" stroke-dashoffset="67.8" class="progress"/></svg><span class="risk-num" style="color:var(--warn-med);">28</span></div><span class="risk-label">Risk</span></div>
+                            <i data-lucide="more-vertical" class="action-dots" style="width:16px;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-tags"><span class="eco-badge">Outdated</span></div>
+                    <div class="threat-desc">CVE-2021-44906 prototype pollution. Current version 1.2.5 affected. Safe version 1.2.8 available. Widely used transitive dependency.</div>
+                    
+                    <div class="scores-grid" style="width: 66%;">
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Behavioral Pattern</span><span class="ml-score mono" style="color:var(--safe-green);">28%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--safe-green); width:28%;"></div></div></div>
+                        <div class="ml-section"><div class="ml-label-row"><span class="ml-label">Typo Proximity</span><span class="ml-score mono" style="color:var(--safe-green);">9%</span></div><div class="progress-bg"><div class="progress-fill" style="background:var(--safe-green); width:9%;"></div></div></div>
+                    </div>
+                    
+                    <div class="threat-expanded-wrapper"><div class="threat-expanded-inner"></div></div>
+                    <div class="threat-actions"><button class="ghost-btn" onclick="event.stopPropagation()">View Details</button><button class="scan-btn" onclick="showToast('Threat minimist updated to 1.2.8.', 'success'); event.stopPropagation()"><i data-lucide="wrench" style="width:12px;"></i> Fix with Doria</button></div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // Filter Logic
+        const filterBtns = document.querySelectorAll('.filter-pill');
+        const threatCards = document.querySelectorAll('.threat-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all pills
+                filterBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked pill
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                threatCards.forEach(card => {
+                    const severity = card.getAttribute('data-severity');
+                    const types = card.getAttribute('data-types') || "";
+                    
+                    // Show matching cards, hide others
+                    if (filterValue === 'all' || severity === filterValue || types.includes(filterValue)) {
+                        card.style.display = 'flex';
+                        
+                        // Re-trigger animation
+                        card.style.animation = 'none';
+                        card.offsetHeight; // trigger reflow
+                        card.style.animation = null; 
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Toast System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            // Icon mapping
+            const iconName = type === 'success' ? 'check-circle' : 'info';
+            
+            toast.innerHTML = `<i data-lucide="${iconName}" style="width:16px;"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({root: toast});
+            
+            // Animate in
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Profile Menu Logic
+        const profileBtn = document.getElementById('profile-btn');
+        const profileFlyout = document.getElementById('profile-flyout');
+        
+        if (profileBtn && profileFlyout) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileFlyout.classList.toggle('open');
+                profileBtn.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!profileFlyout.contains(e.target) && profileFlyout.classList.contains('open')) {
+                    profileFlyout.classList.remove('open');
+                    profileBtn.classList.remove('active');
+                }
+            });
+        }
+
+        // Accordion Logic
+        function toggleCard(event, element) {
+            if (event.target.closest('button') || event.target.closest('.action-dots') || event.target.closest('a')) return;
+            
+            const isExpanded = element.classList.contains('expanded');
+            
+            document.querySelectorAll('.threat-card').forEach(card => {
+                card.classList.remove('expanded');
+            });
+            
+            if (!isExpanded) {
+                element.classList.add('expanded');
+            }
+        }
+    </script>
+</body>
+</html>
