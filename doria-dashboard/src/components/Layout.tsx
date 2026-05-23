@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderCode,
@@ -18,7 +18,6 @@ import {
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const flyoutRef = useRef<HTMLDivElement>(null);
-  const { pathname } = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -227,17 +226,56 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Profile Card */}
+          <div
+            className="sidebar-row"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 12px",
+              margin: "4px 4px",
+              borderRadius: 8,
+              cursor: "pointer",
+            }}
+          >
+            <div className="row-icon" style={{ color: "var(--text-muted)" }}>
+              <Bell size={17} />
+            </div>
+            <span
+              className="row-text"
+              style={{
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                fontWeight: 500,
+                marginLeft: 12,
+                flex: 1,
+              }}
+            >
+              Alerts
+            </span>
+            <span
+              className="row-badge"
+              style={{
+                background: "var(--threat-red)",
+                color: "#fff",
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10,
+                fontWeight: 800,
+                borderRadius: 12,
+                padding: "2px 7px",
+              }}
+            >
+              3
+            </span>
+          </div>
+
+          {/* Profile Card & Flyout Wrapper */}
           <div
             className="profile-card-wrapper"
             ref={flyoutRef}
             style={{ position: "relative", marginTop: 4 }}
           >
-            {/* Flyout */}
-            <div
-              className={`profile-flyout ${isProfileOpen ? "open" : ""}`}
-              style={flyoutStyle}
-            >
+            {/* Flyout Menu */}
+            <div className={`profile-flyout ${isProfileOpen ? "open" : ""}`}>
               <div
                 style={{
                   display: "flex",
@@ -251,10 +289,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <img
                   src="https://avatars.githubusercontent.com/u/96030189?v=4"
                   alt="Avatar"
-                  style={{ width: 32, height: 32, borderRadius: "50%" }}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
                 />
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontSize: 12.5, fontWeight: 600 }}>
+                  <span
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     Elvis Chege
                   </span>
                   <span
@@ -270,15 +319,48 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <User size={14} /> Account Settings
                 </a>
                 <a href="#" style={flyoutItemStyle}>
-                  <LogOut size={14} color="var(--threat-red)" />{" "}
-                  <span style={{ color: "var(--threat-red)" }}>Sign Out</span>
+                  <CreditCard size={14} /> Billing & Plan
+                </a>
+                <a href="#" style={flyoutItemStyle}>
+                  <Zap size={14} /> Active Features
+                  <span className="pro-badge" style={{ marginLeft: "auto" }}>
+                    PRO
+                  </span>
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
+                    margin: "4px 0",
+                  }}
+                ></div>
+                <a href="#" style={flyoutItemStyle}>
+                  <Shield size={14} /> Security Log
+                </a>
+                <a href="#" style={flyoutItemStyle}>
+                  <Book size={14} /> Documentation
+                </a>
+                <div
+                  style={{
+                    height: 1,
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
+                    margin: "4px 0",
+                  }}
+                ></div>
+                <a
+                  href="#"
+                  style={{ ...flyoutItemStyle, color: "var(--threat-red)" }}
+                >
+                  <LogOut size={14} color="var(--threat-red)" /> Sign Out
                 </a>
               </div>
             </div>
 
-            {/* Button */}
+            {/* Profile Button Trigger */}
             <div
-              className="profile-card"
+              className={`profile-card ${isProfileOpen ? "active" : ""}`}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               style={{
                 display: "flex",
@@ -287,7 +369,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 borderRadius: 10,
                 background: "rgba(0,0,0,0.15)",
                 cursor: "pointer",
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
               }}
             >
               <div style={{ position: "relative" }}>
@@ -308,18 +390,47 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   }}
                 />
               </div>
-              <div style={{ marginLeft: 10, flex: 1 }}>
+              <div
+                style={{
+                  marginLeft: 10,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     Elvis Chege
                   </span>
                   <span className="pro-badge">PRO</span>
                 </div>
-                <div style={{ fontSize: 10.5, color: "var(--text-muted)" }}>
+                <div
+                  style={{
+                    fontSize: 10.5,
+                    color: "var(--text-muted)",
+                    fontWeight: 500,
+                  }}
+                >
                   Workspace Admin
                 </div>
               </div>
-              <ChevronsUpDown size={14} color="var(--text-muted)" />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--text-muted)",
+                  padding: 6,
+                }}
+              >
+                <ChevronsUpDown size={14} />
+              </div>
             </div>
           </div>
         </div>
@@ -340,7 +451,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Inline styles converted for React specific to layout bits
 const navStyle: React.CSSProperties = {
   height: 36,
   padding: "0 12px",
@@ -351,22 +461,6 @@ const navStyle: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 500,
   textDecoration: "none",
-  color: "var(--text-muted)",
-};
-const flyoutStyle: React.CSSProperties = {
-  position: "absolute",
-  bottom: "calc(100% + 8px)",
-  left: 4,
-  right: 4,
-  background: "linear-gradient(180deg, #302D2A 0%, #262422 100%)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  borderRadius: 12,
-  padding: 6,
-  opacity: 0,
-  visibility: "hidden",
-  transform: "translateY(8px) scale(0.96)",
-  transition: "all 0.2s",
-  zIndex: 100,
 };
 const flyoutItemStyle: React.CSSProperties = {
   display: "flex",
