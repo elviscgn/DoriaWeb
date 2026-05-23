@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from "react";
 import Spline from "@splinetool/react-spline";
+import { BrickWallShield } from "lucide-react";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -441,12 +442,7 @@ const SplineBackground = memo(function SplineBackground({
     <Spline
       scene="https://prod.spline.design/Slk6b8kz3LRlKiyk/scene.splinecode"
       style={{ width: "100%", height: "100%" }}
-      onLoad={(spline) => {
-        // disable event-driven re-renders inside Spline runtime
-        // @ts-ignore — internal API, may not exist on all versions
-        if (spline?.canvas) spline.canvas.style.pointerEvents = "none";
-        onLoad();
-      }}
+      renderOnDemand={true}
     />
   );
 });
@@ -556,7 +552,7 @@ export default function DoriaLanding() {
       {/* NAVBAR */}
       <nav>
         <a href="https://github.com/elviscgn/Doria" className="logo">
-          <GridIcon />
+          <BrickWallShield size={20} strokeWidth={1.5} color="currentColor" />
           <span>
             <span className="logo-d">D</span>ORIA
           </span>
@@ -772,7 +768,8 @@ export default function DoriaLanding() {
       {/* FOOTER */}
       <footer>
         <a href="https://github.com/elviscgn/Doria" className="footer-wordmark">
-          <GridIcon />
+          <BrickWallShield size={20} strokeWidth={1.5} color="currentColor" />
+
           <span>
             <span style={{ color: "var(--primary)" }}>D</span>ORIA
           </span>
