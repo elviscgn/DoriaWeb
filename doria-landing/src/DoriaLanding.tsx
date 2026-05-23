@@ -1,9 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
-
-// const Spline = lazy(
-//   () => import("https://esm.sh/@splinetool/react-spline@2.2.6"),
-// );
-
+import { useState, useEffect, memo } from "react";
 import Spline from "@splinetool/react-spline";
 
 const styles = `
@@ -39,12 +34,14 @@ const styles = `
 
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
   }
 
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  @media (prefers-reduced-motion), (max-width: 768px) {
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
   }
 
   .animate-fade-up {
@@ -52,11 +49,7 @@ const styles = `
     animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  .animate-fade-in {
-    opacity: 0;
-    animation: fade-in 0.5s ease-out forwards;
-  }
-
+  /* NAV */
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -67,7 +60,6 @@ const styles = `
     justify-content: space-between;
     align-items: center;
   }
-
   @media (max-width: 1024px) { nav { padding: 20px 32px; } }
 
   .logo {
@@ -80,15 +72,9 @@ const styles = `
     text-decoration: none;
     color: var(--foreground);
   }
-
   .logo-d { color: var(--primary); }
 
-  .nav-links {
-    display: flex;
-    gap: 32px;
-    list-style: none;
-  }
-
+  .nav-links { display: flex; gap: 32px; list-style: none; }
   @media (max-width: 768px) { .nav-links { display: none; } .nav-btns { display: none !important; } }
 
   .nav-links a {
@@ -99,7 +85,6 @@ const styles = `
     letter-spacing: 0.1em;
     transition: color 0.2s;
   }
-
   .nav-links a:hover { color: var(--foreground); }
 
   .nav-btns { display: flex; gap: 12px; }
@@ -118,39 +103,20 @@ const styles = `
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: filter 0.2s, transform 0.1s;
     white-space: nowrap;
   }
-
-  .btn-ghost {
-    background: var(--nav-button);
-    color: var(--foreground);
-  }
-
-  .btn-ghost:hover { background: hsl(220, 16%, 13%); }
-
-  .btn-primary {
-    background: var(--primary);
-    color: var(--primary-foreground);
-  }
-
+  .btn-ghost { background: var(--nav-button); color: var(--foreground); }
+  .btn-ghost:hover { filter: brightness(1.2); }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); }
   .btn-primary:hover { filter: brightness(1.1); }
   .btn-primary:active { transform: scale(0.97); }
-
-  .btn-white {
-    background: #ffffff;
-    color: var(--background);
-  }
-
+  .btn-white { background: #fff; color: var(--background); }
   .btn-white:hover { filter: brightness(0.9); }
   .btn-white:active { transform: scale(0.97); }
+  .btn-lg { font-size: 0.875rem; padding: 16px 32px; border-radius: 2px; }
 
-  .btn-lg {
-    font-size: 0.875rem;
-    padding: 16px 32px;
-    border-radius: 2px;
-  }
-
+  /* HERO */
   .hero {
     position: relative;
     min-height: 100vh;
@@ -165,7 +131,13 @@ const styles = `
     inset: 0;
     width: 100%;
     height: 100%;
+    /* isolate compositing to this subtree */
+    isolation: isolate;
   }
+
+  /* fade spline in gracefully once loaded */
+  .hero-spline.is-ready { animation: fade-in-spline 0.8s ease forwards; }
+  @keyframes fade-in-spline { from { opacity: 0; } to { opacity: 1; } }
 
   .hero-overlay {
     position: absolute;
@@ -181,11 +153,9 @@ const styles = `
     pointer-events: none;
     width: 100%;
     max-width: min(90%, 48rem);
-    padding: 0 40px 40px;
-    padding-top: 128px;
+    padding: 128px 40px 40px;
   }
-
-  @media (max-width: 640px) { .hero-content { max-width: 90%; padding: 128px 24px 40px; } }
+  @media (max-width: 640px) { .hero-content { padding: 128px 24px 40px; } }
 
   .hero-badge {
     display: inline-flex;
@@ -198,12 +168,9 @@ const styles = `
     font-size: 0.75rem;
     color: var(--muted-foreground);
     margin-bottom: 24px;
-    animation-delay: 0s;
   }
-
   .badge-dot {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--primary);
     flex-shrink: 0;
@@ -216,9 +183,7 @@ const styles = `
     letter-spacing: -0.03em;
     text-transform: uppercase;
     margin-bottom: 12px;
-    animation-delay: 0.2s;
   }
-
   .hero-h1 .gold { color: var(--primary); }
 
   .hero-sub {
@@ -226,7 +191,6 @@ const styles = `
     font-weight: 300;
     color: rgba(241,245,249,0.8);
     margin-bottom: 16px;
-    animation-delay: 0.4s;
   }
 
   .hero-desc {
@@ -235,7 +199,6 @@ const styles = `
     color: var(--muted-foreground);
     margin-bottom: 24px;
     max-width: 36rem;
-    animation-delay: 0.55s;
   }
 
   .hero-ctas {
@@ -243,7 +206,6 @@ const styles = `
     flex-wrap: wrap;
     gap: 12px;
     pointer-events: auto;
-    animation-delay: 0.7s;
   }
 
   .hero-trust {
@@ -251,7 +213,6 @@ const styles = `
     font-weight: 300;
     color: rgba(100,116,139,0.6);
     margin-top: 24px;
-    animation-delay: 0.85s;
   }
 
   /* STATS */
@@ -263,18 +224,15 @@ const styles = `
     display: grid;
     grid-template-columns: repeat(4, 1fr);
   }
-
   @media (max-width: 1024px) { .stats-bar { padding: 48px 32px; } }
-  @media (max-width: 640px) { .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+  @media (max-width: 640px)  { .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
 
   .stat-item {
     padding: 0 24px;
     border-right: 1px solid var(--border);
   }
-
   .stat-item:first-child { padding-left: 0; }
-  .stat-item:last-child { border-right: none; }
-
+  .stat-item:last-child  { border-right: none; }
   @media (max-width: 640px) {
     .stat-item { border-right: none; padding: 0; }
     .stat-item:nth-child(odd) { border-right: 1px solid var(--border); }
@@ -288,19 +246,10 @@ const styles = `
     display: block;
     margin-bottom: 6px;
   }
-
-  .stat-label {
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-    line-height: 1.4;
-  }
+  .stat-label { font-size: 0.875rem; color: var(--muted-foreground); line-height: 1.4; }
 
   /* HOW IT WORKS */
-  .how-section {
-    padding: 96px 64px;
-    background: var(--hero-bg);
-  }
-
+  .how-section { padding: 96px 64px; background: var(--hero-bg); }
   @media (max-width: 1024px) { .how-section { padding: 96px 32px; } }
 
   .section-label {
@@ -310,7 +259,6 @@ const styles = `
     color: var(--muted-foreground);
     margin-bottom: 16px;
   }
-
   .section-heading {
     font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 700;
@@ -325,7 +273,6 @@ const styles = `
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
-
   @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } }
 
   .feature-card {
@@ -335,8 +282,7 @@ const styles = `
     padding: 32px;
     transition: border-color 0.3s;
   }
-
-  .feature-card:hover { border-color: rgba(193,154,77,0.3); }
+  .feature-card:hover { border-color: rgba(193,154,77,0.35); }
 
   .card-num {
     font-size: 3.75rem;
@@ -347,26 +293,11 @@ const styles = `
     display: block;
     line-height: 1;
   }
-
-  .card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--foreground);
-    margin-bottom: 12px;
-  }
-
-  .card-desc {
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-    line-height: 1.7;
-  }
+  .card-title { font-size: 1.25rem; font-weight: 600; color: var(--foreground); margin-bottom: 12px; }
+  .card-desc  { font-size: 0.875rem; color: var(--muted-foreground); line-height: 1.7; }
 
   /* COMPETITOR */
-  .competitor-section {
-    padding: 96px 64px;
-    background: var(--secondary);
-  }
-
+  .competitor-section { padding: 96px 64px; background: var(--secondary); }
   @media (max-width: 1024px) { .competitor-section { padding: 96px 32px; } }
 
   .comp-table-wrap {
@@ -378,15 +309,8 @@ const styles = `
     overflow: hidden;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  thead tr {
-    background: rgba(0,0,0,0.4);
-  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead tr { background: rgba(0,0,0,0.4); }
 
   th {
     font-size: 0.7rem;
@@ -397,7 +321,6 @@ const styles = `
     text-align: left;
     font-weight: 400;
   }
-
   th.doria-col { color: var(--primary); text-align: center; }
   th:not(:first-child) { text-align: center; }
 
@@ -406,24 +329,17 @@ const styles = `
     font-size: 0.875rem;
     border-bottom: 1px solid var(--border);
   }
-
   tr:last-child td { border-bottom: none; }
-
   td:first-child { color: var(--foreground); }
   td:not(:first-child) { text-align: center; }
 
   .check { color: #4ade80; font-size: 1rem; }
   .cross { color: #f87171; font-size: 1rem; }
-  .dash { color: var(--muted-foreground); }
+  .dash  { color: var(--muted-foreground); }
 
-  td.doria-cell {
-    background: rgba(193,154,77,0.05);
-    color: var(--primary);
-  }
+  td.doria-cell { background: rgba(193,154,77,0.05); color: var(--primary); }
 
-  @media (max-width: 640px) {
-    th, td { padding: 12px 10px; font-size: 0.75rem; }
-  }
+  @media (max-width: 640px) { th, td { padding: 12px 10px; font-size: 0.75rem; } }
 
   /* FINAL CTA */
   .cta-section {
@@ -431,39 +347,19 @@ const styles = `
     background: var(--hero-bg);
     text-align: center;
   }
-
   @media (max-width: 1024px) { .cta-section { padding: 128px 32px; } }
 
   .cta-heading {
     font-size: clamp(2.5rem, 5vw, 3.75rem);
     font-weight: 700;
     color: var(--foreground);
-    margin-bottom: 24px;
+    margin: 0 auto 24px;
     max-width: 48rem;
-    margin-left: auto;
-    margin-right: auto;
     line-height: 1.1;
   }
-
-  .cta-sub {
-    color: var(--muted-foreground);
-    font-size: 1.125rem;
-    font-weight: 300;
-    margin-bottom: 48px;
-  }
-
-  .cta-btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-  }
-
-  .cta-fine {
-    font-size: 0.75rem;
-    color: rgba(100,116,139,0.6);
-    margin-top: 32px;
-  }
+  .cta-sub  { color: var(--muted-foreground); font-size: 1.125rem; font-weight: 300; margin-bottom: 48px; }
+  .cta-btns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .cta-fine { font-size: 0.75rem; color: rgba(100,116,139,0.6); margin-top: 32px; }
 
   /* FOOTER */
   footer {
@@ -476,47 +372,26 @@ const styles = `
     flex-wrap: wrap;
     gap: 24px;
   }
-
   @media (max-width: 1024px) { footer { padding: 40px 32px; } }
 
   .footer-wordmark {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    color: var(--foreground);
-    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1rem; font-weight: 600; letter-spacing: -0.025em;
+    color: var(--foreground); text-decoration: none;
   }
-
-  .footer-tagline {
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-  }
-
+  .footer-tagline { font-size: 0.75rem; color: var(--muted-foreground); }
   .footer-gh {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color 0.2s;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; color: var(--muted-foreground);
+    text-decoration: none; transition: color 0.2s;
   }
-
   .footer-gh:hover { color: var(--foreground); }
 `;
 
+/* ─── icons ─────────────────────────────────────────────────────────── */
 function GridIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <rect
         x="1"
         y="1"
@@ -548,7 +423,6 @@ function GridIcon() {
     </svg>
   );
 }
-
 function GithubIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -557,6 +431,27 @@ function GithubIcon() {
   );
 }
 
+/* ─── memoised Spline so parent re-renders never unmount/remount it ── */
+const SplineBackground = memo(function SplineBackground({
+  onLoad,
+}: {
+  onLoad: () => void;
+}) {
+  return (
+    <Spline
+      scene="https://prod.spline.design/Slk6b8kz3LRlKiyk/scene.splinecode"
+      style={{ width: "100%", height: "100%" }}
+      onLoad={(spline) => {
+        // disable event-driven re-renders inside Spline runtime
+        // @ts-ignore — internal API, may not exist on all versions
+        if (spline?.canvas) spline.canvas.style.pointerEvents = "none";
+        onLoad();
+      }}
+    />
+  );
+});
+
+/* ─── table data ─────────────────────────────────────────────────────── */
 const tableRows = [
   {
     feature: "Detects known CVEs",
@@ -616,36 +511,42 @@ const tableRows = [
   },
 ];
 
-function Cell({ val, isDoria }: { val?: boolean | null; isDoria?: boolean }) {
-  if (val === true)
-    return (
-      <td className={isDoria ? "doria-cell" : ""}>
-        <span
-          className={isDoria ? "" : "check"}
-          style={isDoria ? { color: "var(--primary)" } : {}}
-        >
-          ✓
-        </span>
-      </td>
-    );
-  if (val === false)
-    return (
-      <td className={isDoria ? "doria-cell" : ""}>
-        <span className="cross">✗</span>
-      </td>
-    );
-  return (
-    <td>
-      <span className="dash">—</span>
-    </td>
+function Cell({ val, isDoria }: { val: boolean; isDoria: boolean }) {
+  const mark = val ? (
+    <span
+      className={isDoria ? "" : "check"}
+      style={isDoria ? { color: "var(--primary)" } : {}}
+    >
+      ✓
+    </span>
+  ) : (
+    <span className="cross">✗</span>
   );
+  return <td className={isDoria ? "doria-cell" : ""}>{mark}</td>;
 }
 
+/* ─── main component ─────────────────────────────────────────────────── */
 export default function DoriaLanding() {
-  const [splineLoaded, setSplineLoaded] = useState(false);
+  // mount Spline only after the browser is idle post-load
+  const [showSpline, setShowSpline] = useState(false);
+  const [splineReady, setSplineReady] = useState(false);
 
   useEffect(() => {
-    setSplineLoaded(true);
+    const mount = () => {
+      if ("requestIdleCallback" in window) {
+        (window as any).requestIdleCallback(() => setShowSpline(true), {
+          timeout: 2000,
+        });
+      } else {
+        setTimeout(() => setShowSpline(true), 300);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      mount();
+    } else {
+      window.addEventListener("load", mount, { once: true });
+    }
   }, []);
 
   return (
@@ -689,24 +590,9 @@ export default function DoriaLanding() {
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-spline">
-          {splineLoaded && (
-            <Suspense
-              fallback={
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    background: "var(--hero-bg)",
-                  }}
-                />
-              }
-            >
-              <Spline
-                scene="https://prod.spline.design/Slk6b8kz3LRlKiyk/scene.splinecode"
-                style={{ width: "100%", height: "100%" }}
-              />
-            </Suspense>
+        <div className={`hero-spline${splineReady ? " is-ready" : ""}`}>
+          {showSpline && (
+            <SplineBackground onLoad={() => setSplineReady(true)} />
           )}
         </div>
         <div className="hero-overlay" />
@@ -774,28 +660,19 @@ export default function DoriaLanding() {
         </div>
       </section>
 
-      {/* STATS BAR */}
+      {/* STATS */}
       <div className="stats-bar">
-        <div className="stat-item">
-          <span className="stat-number mono">19.7%</span>
-          <span className="stat-label">
-            of AI package suggestions are hallucinated
-          </span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-number mono">$100B+</span>
-          <span className="stat-label">
-            estimated SolarWinds attack damages
-          </span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-number mono">576K</span>
-          <span className="stat-label">code samples in slopsquat research</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-number mono">1.2s</span>
-          <span className="stat-label">average Doria scan time</span>
-        </div>
+        {[
+          { n: "19.7%", l: "of AI package suggestions are hallucinated" },
+          { n: "$100B+", l: "estimated SolarWinds attack damages" },
+          { n: "576K", l: "code samples in slopsquat research" },
+          { n: "1.2s", l: "average Doria scan time" },
+        ].map((s) => (
+          <div className="stat-item" key={s.n}>
+            <span className="stat-number mono">{s.n}</span>
+            <span className="stat-label">{s.l}</span>
+          </div>
+        ))}
       </div>
 
       {/* HOW IT WORKS */}
