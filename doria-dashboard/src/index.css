@@ -40,7 +40,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* FIX: Resets links so they don't fall back to browser purple/blue */
+/* Resets links to prevent browser visited purple */
 a {
   color: inherit;
   text-decoration: none;
@@ -517,7 +517,6 @@ body {
 .settings-title { font-size: 14.5px; font-weight: 500; color: var(--text-primary); }
 .settings-desc { font-size: 12.5px; color: var(--text-muted); max-width: 480px; }
 
-/* Switch Toggle input styles */
 .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 22px; border: 1px solid var(--border-strong); }
@@ -531,7 +530,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 @keyframes slideInPanel { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 .about-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
 
-/* Interactive tree nested spacing elements */
 .folder-chevron { width: 14px; height: 14px; color: var(--text-muted); transition: transform 0.2s ease; cursor: pointer; margin-right: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .folder-chevron.expanded { transform: rotate(90deg); }
 .chevron-spacer { display: inline-block; width: 20px; flex-shrink: 0; }
@@ -540,7 +538,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
    HOVER & INTERACTION ANIME PORT
    ========================================================================== */
 
-/* 1. Header & Brand Logo Glows */
 .sidebar-header {
   transition: opacity 0.2s;
 }
@@ -551,9 +548,26 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   filter: drop-shadow(0 0 8px rgba(255, 254, 203, 0.3));
 }
 
-/* 2. Navigation Item Hover Transitions */
+/* Nav Link Hover & Active Highlighting Rules */
+.nav-item {
+  height: 36px;
+  padding: 0 12px;
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .nav-item svg {
   transition: all 0.25s ease;
+  color: var(--text-muted);
 }
 .nav-item:hover {
   color: var(--text-primary);
@@ -565,7 +579,28 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   color: var(--text-secondary);
 }
 
-/* 3. Security Health Widget Hover */
+/* Active Highlight Rules */
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(255,254,203,0.08) 0%, transparent 100%) !important;
+  color: var(--doria-yellow) !important;
+  font-weight: 600;
+}
+.nav-item.active svg {
+  color: var(--doria-yellow) !important;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 3px;
+  background: var(--doria-yellow);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 12px rgba(255, 254, 203, 0.5);
+}
+
 .security-health-widget {
   transition: all 0.3s ease;
 }
@@ -574,7 +609,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   background: rgba(0, 0, 0, 0.25) !important;
 }
 
-/* 4. Alerts Sidebar Row Hovers */
 .sidebar-row {
   transition: all 0.2s ease;
 }
@@ -595,7 +629,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   color: var(--text-primary);
 }
 
-/* 5. Profile Trigger & Flyout MenuItem Hovers */
 .profile-card-wrapper {
   position: relative;
 }
@@ -635,7 +668,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   opacity: 1;
 }
 
-/* 6. Scan Input & Buttons Glows */
 .scan-bar {
   transition: all 0.3s ease;
 }
@@ -651,7 +683,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   box-shadow: 0 4px 12px rgba(255, 254, 203, 0.2);
 }
 
-/* 7. Stats Card Lift on Hover */
 .stat-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -660,7 +691,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* 8. Telemetry Feed Rows Hover TranslateX */
 .feed-row {
   transition: all 0.2s ease;
 }
@@ -669,7 +699,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   transform: translateX(3px);
 }
 
-/* 9. Distribution Pie Charts time tab toggle */
 .time-tab {
   transition: all 0.2s;
 }
@@ -677,7 +706,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   color: var(--text-primary);
 }
 
-/* 10. Codebases page repo cards lift */
 .repo-card {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -690,7 +718,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 .repo-card[data-risk="medium"]:hover { border-color: rgba(242, 204, 96, 0.35); }
 .repo-card[data-risk="high"]:hover { border-color: rgba(255, 123, 114, 0.45); }
 
-/* 11. Detail Explorer file rows hover */
 .file-row {
   transition: background 0.15s, border-color 0.15s;
 }
@@ -698,7 +725,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   background: rgba(255, 255, 255, 0.02) !important;
 }
 
-/* 12. Security threat lists hover block colors */
 .threat-card {
   transition: all 0.3s ease;
 }
@@ -707,7 +733,6 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
   background: var(--bg-panel-hover) !important;
 }
 
-/* 13. PR link styling inside timeline */
 .step-link {
   transition: all 0.2s ease;
 }
@@ -717,14 +742,13 @@ input:checked + .slider:before { transform: translateX(22px); background-color: 
 }
 
 /* ==========================================================================
-   Animations
+   Animations & Toasts Feedback
    ========================================================================== */
 @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes pulse-ring { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
 @keyframes toastUp { to { transform: translateY(0); opacity: 1; } }
 @keyframes cardFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Global feedback toasts structures */
 .toast-container {
   position: fixed; bottom: 24px; right: 24px; z-index: 1000;
   display: flex; flex-direction: column; gap: 10px;
