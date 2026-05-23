@@ -110,24 +110,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             Platform
           </div>
+          {/* FIX: Removed style={navStyle} inline style overrides */}
           <NavLink
             to="/dashboard"
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-            style={navStyle}
           >
             <LayoutDashboard size={16} /> Overview
           </NavLink>
           <NavLink
             to="/codebases"
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-            style={navStyle}
           >
             <FolderCode size={16} /> Codebases
           </NavLink>
           <NavLink
             to="/threats"
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-            style={navStyle}
           >
             <ShieldAlert size={16} /> Threats
           </NavLink>
@@ -149,7 +147,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
-            style={navStyle}
           >
             <Settings size={16} /> Settings
           </NavLink>
@@ -274,7 +271,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ref={flyoutRef}
             style={{ position: "relative", marginTop: 4 }}
           >
-            {/* Flyout Menu */}
+            {/* Flyout */}
             <div className={`profile-flyout ${isProfileOpen ? "open" : ""}`}>
               <div
                 style={{
@@ -358,7 +355,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            {/* Profile Button Trigger */}
+            {/* Profile Button */}
             <div
               className={`profile-card ${isProfileOpen ? "active" : ""}`}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -451,17 +448,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const navStyle: React.CSSProperties = {
-  height: 36,
-  padding: "0 12px",
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-  borderRadius: 8,
-  fontSize: 13,
-  fontWeight: 500,
-  textDecoration: "none",
-};
 const flyoutItemStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
