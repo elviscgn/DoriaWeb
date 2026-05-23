@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
-  TerminalSquare,
+  SquareTerminal,
   Box,
   ShieldBan,
   Bot,
@@ -117,7 +117,7 @@ export default function Dashboard() {
             width: 320,
           }}
         >
-          <TerminalSquare size={14} color="var(--text-muted)" />
+          <SquareTerminal size={14} color="var(--text-muted)" />
           <input
             type="text"
             className="mono"
