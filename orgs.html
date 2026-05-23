@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doria - Codebases</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-base-top: #423E3B;
+            --bg-base-bottom: #2D2A28;
+            --bg-sidebar: rgba(45, 42, 39, 0.45);
+            
+            --bg-card: rgba(49, 46, 44, 0.7);
+            --bg-card-hover: rgba(56, 52, 49, 0.9);
+            
+            --doria-yellow: #FFFECB;
+            --doria-yellow-dim: rgba(255, 254, 203, 0.1);
+            
+            --text-primary: #F4F1EB;
+            --text-secondary: #D0C9C0;
+            --text-muted: #9E978F;
+            
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.15);
+            
+            --safe-green: #7EE787;
+            --safe-green-dim: rgba(126, 231, 135, 0.15);
+            
+            --threat-red: #FF7B72;
+            --threat-red-dim: rgba(255, 123, 114, 0.15);
+            
+            --warning-amber: #F2CC60;
+            --warning-amber-dim: rgba(242, 204, 96, 0.15);
+            
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 6px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 0%, var(--bg-base-top), var(--bg-base-bottom) 80%);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; 
+            display: flex;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 254, 203, 0.12); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 254, 203, 0.3); }
+
+        /* -------------------------
+           100/10 SIDEBAR REDESIGN
+           ------------------------- */
+        .sidebar {
+            width: 240px; 
+            height: 100vh;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            padding: 28px 24px 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+        
+        .sidebar-header:hover { opacity: 0.8; }
+        .sidebar-header svg { filter: drop-shadow(0 0 8px rgba(255,254,203,0.3)); }
+
+        .wordmark-text {
+            font-family: 'Major Mono Display', monospace;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--doria-yellow);
+            line-height: 1;
+            margin-top: 2px;
+            letter-spacing: -1px;
+        }
+
+        .nav-section-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 0 24px;
+            margin: 16px 0 8px 0;
+            opacity: 0.7;
+        }
+
+        .sidebar-nav {
+            flex-grow: 1;
+            padding: 0 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            height: 36px; 
+            padding: 0 12px;
+            margin: 0 4px;
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            border-radius: var(--radius-md);
+            font-size: 13px; 
+            font-weight: 500; 
+            color: var(--text-muted);
+            cursor: pointer; 
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .nav-item i {
+            width: 16px;
+            height: 16px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-item:hover { 
+            color: var(--text-primary); 
+            background: rgba(255,255,255,0.04);
+            transform: translateX(4px); 
+        }
+
+        .nav-item:hover i {
+            transform: scale(1.1);
+            color: var(--text-secondary);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(255,254,203,0.08) 0%, transparent 100%);
+            color: var(--doria-yellow);
+            font-weight: 600;
+        }
+
+        .nav-item.active i { color: var(--doria-yellow); }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60%;
+            width: 3px;
+            background: var(--doria-yellow);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 12px rgba(255, 254, 203, 0.5);
+        }
+
+        .sidebar-bottom-container {
+            flex-shrink: 0;
+            padding: 0 12px 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Glassmorphic Security Widget */
+        .security-health-widget {
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px;
+            margin: 8px 4px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+            transition: all 0.3s ease;
+        }
+        
+        .security-health-widget:hover {
+            border-color: rgba(242, 204, 96, 0.2);
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .health-ring-container {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .health-ring-glow {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: var(--warning-amber);
+            filter: blur(14px);
+            opacity: 0.25;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .health-ring-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .health-ring-svg .track { stroke: rgba(255,255,255,0.06); }
+        .health-ring-svg .progress { stroke: var(--warning-amber); }
+
+        .health-ring-text {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--text-primary);
+            z-index: 2;
+        }
+
+        .health-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            z-index: 1; 
+        }
+
+        .health-title {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .health-subtitle {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .sidebar-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 0 4px;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .sidebar-row:hover { background-color: rgba(255, 255, 255, 0.04); }
+
+        .row-icon {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-row:hover .row-icon {
+            color: var(--text-primary);
+            transform: rotate(10deg);
+        }
+
+        .row-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-left: 12px;
+            flex: 1;
+            transition: color 0.2s ease;
+        }
+
+        .sidebar-row:hover .row-text { color: var(--text-primary); }
+
+        /* Pulsing Radar Badge */
+        .row-badge {
+            background-color: var(--threat-red);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 12px;
+            padding: 2px 7px;
+            position: relative;
+        }
+        
+        .row-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            border: 1px solid var(--threat-red);
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        /* Premium Purple PRO Badge */
+        .pro-badge {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: #FFFFFF;
+            font-size: 8px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 6px rgba(109, 40, 217, 0.35);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* -------------------------
+           OUTLINED PROFILE CARD & REDESIGNED FLYOUT
+           ------------------------- */
+        .profile-card-wrapper {
+            position: relative;
+            margin-top: 4px;
+        }
+
+        .profile-card {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            margin: 0 4px;
+            cursor: pointer;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.15); 
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-card:hover, .profile-card.active {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .profile-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .online-dot {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: var(--safe-green);
+            border: 2px solid var(--bg-base-bottom); 
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(126,231,135,0.4);
+        }
+
+        .profile-info {
+            margin-left: 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: 0.1px;
+            white-space: nowrap;
+        }
+
+        .profile-role {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .profile-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+        
+        .profile-card:hover .profile-action, .profile-card.active .profile-action {
+            color: var(--text-primary);
+        }
+
+        /* --- THE NEW FLYOUT MENU --- */
+        .profile-flyout {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 4px;
+            right: 4px;
+            width: auto;
+            background: linear-gradient(180deg, #302D2A 0%, #262422 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            
+            /* Hidden State */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px) scale(0.96);
+            transform-origin: bottom center;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+
+        .profile-flyout.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .flyout-header {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .flyout-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .flyout-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .flyout-name {
+            font-size: 12.5px;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: 0.1px;
+        }
+
+        .flyout-email {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .flyout-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .flyout-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .flyout-item svg { 
+            width: 14px; 
+            height: 14px; 
+            color: var(--text-muted);
+            transition: color 0.15s ease;
+            stroke-width: 1.5; 
+        }
+
+        .flyout-item:hover {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-primary);
+        }
+
+        .flyout-item:hover svg { color: var(--text-secondary); }
+
+        .flyout-divider {
+            height: 1px; 
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); 
+            margin: 4px 0;
+        }
+
+        .flyout-logout { color: var(--threat-red); }
+        .flyout-logout svg { color: var(--threat-red); opacity: 0.8;}
+        
+        .flyout-logout:hover { 
+            background: rgba(255, 123, 114, 0.1); 
+            color: var(--threat-red); 
+        }
+        .flyout-logout:hover svg { color: var(--threat-red); opacity: 1; }
+
+        /* Main Workspace Structure */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        .topbar {
+            height: 60px; 
+            flex-shrink: 0;
+            padding: 0 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.2px; }
+
+        .repo-search-bar {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 6px 14px;
+            width: 280px;
+            transition: all 0.2s ease, opacity 0.2s ease;
+        }
+        .repo-search-bar:focus-within {
+            border-color: rgba(255, 254, 203, 0.4);
+            box-shadow: 0 0 0 3px var(--doria-yellow-dim);
+            width: 310px;
+        }
+        .repo-search-bar.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .search-input {
+            flex: 1; background: transparent; border: none; outline: none;
+            color: var(--text-primary); font-size: 13px;
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        /* Multi-View System */
+        .view-section {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            padding: 24px 32px 32px 32px; 
+            overflow-y: auto;
+        }
+        .view-section.active { display: flex; animation: slideFadeIn 0.2s ease forwards; }
+
+        @keyframes slideFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* VIEW 1: CODEBASES LIST */
+        .cb-header-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; flex-shrink: 0;
+        }
+        
+        .cb-header-left { display: flex; flex-direction: column; gap: 4px; }
+        .cb-subtitle { font-size: 13.5px; color: var(--text-muted); font-weight: 400; }
+        
+        /* Connect GitHub Buttons */
+        .btn-github {
+            background: var(--bg-card); border: 1px solid var(--border-strong);
+            color: var(--text-primary); border-radius: var(--radius-md); padding: 8px 16px;
+            font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-github:hover {
+            border-color: rgba(255, 254, 203, 0.4); color: var(--doria-yellow);
+            background: var(--bg-card-hover);
+        }
+        
+        .btn-github svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+        
+        /* Connected Status Badge Style */
+        .btn-github.connected {
+            background: rgba(126, 231, 135, 0.05);
+            border-color: rgba(126, 231, 135, 0.3);
+            color: var(--safe-green);
+        }
+        .btn-github.connected:hover {
+            background: rgba(126, 231, 135, 0.1);
+            border-color: var(--safe-green);
+        }
+        
+        .github-pulse-dot {
+            width: 6px; height: 6px; background-color: var(--safe-green);
+            border-radius: 50%; box-shadow: 0 0 6px var(--safe-green);
+        }
+
+        /* Mode 1: Empty State Layout */
+        .empty-state-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 40px;
+            background: rgba(49, 46, 44, 0.4);
+            border: 1px dashed var(--border-strong);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            max-width: 520px;
+            margin: auto;
+            animation: slideFadeIn 0.3s ease forwards;
+        }
+        .empty-state-icon {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-light);
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+            color: var(--doria-yellow);
+        }
+        .empty-state-icon svg {
+            width: 26px; height: 26px;
+            fill: currentColor;
+        }
+        .empty-state-title {
+            font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;
+        }
+        .empty-state-desc {
+            font-size: 13.5px; color: var(--text-muted); margin-bottom: 24px; max-width: 360px; line-height: 1.5;
+        }
+
+        /* Mode 2: Codebase Repositories grid */
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+
+        .repo-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 20px; 
+            position: relative;
+            display: flex; flex-direction: column;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Subtle Hover Borders */
+        .repo-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        
+        .repo-card[data-risk="low"]:hover { border-color: rgba(126, 231, 135, 0.35); }
+        .repo-card[data-risk="medium"]:hover { border-color: rgba(242, 204, 96, 0.35); }
+        .repo-card[data-risk="high"]:hover { border-color: rgba(255, 123, 114, 0.45); }
+
+        /* Warning Alert Dot positioning */
+        .repo-pulse {
+            position: absolute; top: 22px; right: 20px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--threat-red); box-shadow: 0 0 10px var(--threat-red);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.4; } }
+
+        .repo-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;}
+        .repo-name-wrapper { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        
+        .repo-name { font-size: 15.5px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center;}
+        .repo-owner { color: var(--text-muted); font-weight: 400; }
+        .repo-slash { color: var(--border-strong); margin: 0 4px; }
+        
+        .repo-visibility {
+            font-size: 10px; font-weight: 600; color: var(--text-muted);
+            border: 1px solid var(--border-strong); border-radius: 12px;
+            padding: 2px 8px; letter-spacing: 0.2px;
+        }
+
+        /* Programming Language Tags */
+        .repo-badges { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;}
+        .repo-badge { 
+            font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: var(--radius-sm); 
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+        }
+        .repo-badge img, .repo-badge svg {
+            width: 14px; height: 14px; flex-shrink: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .badge-ts { 
+            background: rgba(49, 120, 198, 0.06); 
+            color: #8ab6eb; 
+            border-color: rgba(49, 120, 198, 0.35); 
+        }
+        .badge-ts:hover {
+            background: rgba(49, 120, 198, 0.12);
+            border-color: rgba(49, 120, 198, 0.5);
+        }
+        .badge-node { 
+            background: rgba(82, 159, 65, 0.06); 
+            color: #92e098; 
+            border-color: rgba(82, 159, 65, 0.35); 
+        }
+        .badge-node:hover {
+            background: rgba(82, 159, 65, 0.12);
+            border-color: rgba(82, 159, 65, 0.5);
+        }
+        .badge-py { 
+            background: rgba(53, 114, 165, 0.06); 
+            color: #8fc7f8; 
+            border-color: rgba(53, 114, 165, 0.35); 
+        }
+        .badge-py:hover {
+            background: rgba(53, 114, 165, 0.12);
+            border-color: rgba(53, 114, 165, 0.5);
+        }
+        .badge-fastapi { 
+            background: rgba(0, 150, 136, 0.06); 
+            color: #5eead4; 
+            border-color: rgba(0, 150, 136, 0.35); 
+        }
+        .badge-fastapi:hover {
+            background: rgba(0, 150, 136, 0.12);
+            border-color: rgba(0, 150, 136, 0.5);
+        }
+        .badge-pytorch { 
+            background: rgba(238, 76, 44, 0.06); 
+            color: #ff9f80; 
+            border-color: rgba(238, 76, 44, 0.35); 
+        }
+        .badge-pytorch:hover {
+            background: rgba(238, 76, 44, 0.12);
+            border-color: rgba(238, 76, 44, 0.5);
+        }
+        
+        .repo-time { font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 20px;}
+        .repo-time i { width: 12px; height: 12px; }
+
+        .risk-section { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-light); }
+        .risk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .risk-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;}
+        
+        .risk-badge { font-size: 9.5px; font-weight: 700; padding: 3px 8px; border-radius: var(--radius-sm); letter-spacing: 0.5px;}
+        .risk-badge.low { background: var(--safe-green-dim); color: var(--safe-green); }
+        .risk-badge.medium { background: var(--warning-amber-dim); color: var(--warning-amber); }
+        .risk-badge.high { background: var(--threat-red-dim); color: var(--threat-red); }
+
+        .risk-bar-bg { width: 100%; height: 5px; background: rgba(0,0,0,0.25); border-radius: 2.5px; overflow: hidden; }
+        .risk-bar-fill { height: 100%; border-radius: 2.5px; width: 0; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .risk-bar-fill.low { background: var(--safe-green); }
+        .risk-bar-fill.medium { background: var(--warning-amber); }
+        .risk-bar-fill.high { background: var(--threat-red); box-shadow: 0 0 10px rgba(255, 123, 114, 0.4); }
+
+        .repo-stats { margin-top: 12px; display: flex; gap: 16px; align-items: center; }
+        .stat-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); font-weight: 500; transition: all 0.2s; }
+        .stat-item i { width: 13px; height: 13px; }
+        .stat-item.danger { color: var(--threat-red); }
+        .stat-item.warning { color: var(--warning-amber); }
+        
+        /* Global Text Safe Color FIX */
+        .stat-item.safe { color: var(--safe-green) !important; }
+        .stat-item.safe i { color: var(--safe-green) !important; }
+
+        /* Sidebar Specific Box Styling FIX */
+        #sidebar-stat-threats.safe {
+            background: rgba(126, 231, 135, 0.03) !important;
+            border: 1px solid rgba(126, 231, 135, 0.15) !important;
+        }
+
+        /* VIEW 2: CODEBASE DETAIL */
+        .detail-header { margin-bottom: 24px; }
+        
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;
+        }
+        .breadcrumb-link {
+            color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 4px;
+            transition: color 0.2s; cursor: pointer;
+        }
+        .breadcrumb-link:hover { color: var(--text-primary); }
+        
+        .detail-title-row { display: flex; justify-content: space-between; align-items: center; }
+        
+        .repo-tabs {
+            display: flex; gap: 24px; border-bottom: 1px solid var(--border-light);
+            margin-bottom: 24px;
+        }
+        .repo-tab {
+            padding: 10px 0; font-size: 13.5px; font-weight: 500; color: var(--text-muted);
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            border-bottom: 2px solid transparent; transition: all 0.2s;
+        }
+        .repo-tab:hover { color: var(--text-primary); }
+        .repo-tab.active { color: var(--text-primary); border-bottom-color: var(--doria-yellow); }
+        
+        .tab-count {
+            background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 10px;
+            font-size: 10px; font-weight: 600;
+        }
+        .tab-count.danger { background: var(--threat-red-dim); color: var(--threat-red); }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
+
+        /* Multi-Tab Panel Display */
+        .panel-container { min-height: 380px; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: slideFadeIn 0.2s ease forwards; }
+
+        /* Standard Explorer Elements */
+        .explorer-panel {
+            background: var(--bg-card); border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md); overflow: hidden;
+        }
+        
+        .explorer-header {
+            background: rgba(0,0,0,0.15); padding: 12px 16px; border-bottom: 1px solid var(--border-light);
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 12.5px; color: var(--text-secondary); font-weight: 500;
+        }
+        .commit-info { display: flex; align-items: center; gap: 8px; }
+        .commit-msg { color: var(--text-primary); font-weight: 500; }
+        
+        .file-row {
+            display: grid; grid-template-columns: 2.2fr 1fr 1fr; gap: 16px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border-light);
+            align-items: center; font-size: 13.5px; color: var(--text-secondary);
+            transition: background 0.15s, border-color 0.15s;
+            cursor: pointer;
+        }
+        .file-row:last-child { border-bottom: none; }
+        .file-row:hover { background: rgba(255,255,255,0.02) !important; }
+        
+        .file-name { display: flex; align-items: center; color: var(--text-primary); }
+        .file-name i, .file-name svg, .file-name img { width: 16px; height: 16px; flex-shrink: 0; }
+        .file-name.folder i { color: #60A5FA; fill: rgba(96, 165, 250, 0.2); }
+        .file-name span.mono { margin-left: 8px; }
+        
+        .file-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;}
+        .status-pill { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;}
+        .pill-safe { background: var(--safe-green-dim); color: var(--safe-green); }
+        .pill-danger { background: var(--threat-red-dim); color: var(--threat-red); }
+        .pill-warn { background: var(--warning-amber-dim); color: var(--warning-amber); }
+        
+        .file-date { text-align: right; color: var(--text-muted); font-size: 12px; }
+
+        /* Dependency / Threat Table Layouts */
+        .data-table {
+            width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px;
+        }
+        .data-table th {
+            background: rgba(0,0,0,0.15); color: var(--text-muted); font-weight: 500;
+            padding: 12px 16px; border-bottom: 1px solid var(--border-light);
+        }
+        .data-table td {
+            padding: 14px 16px; border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary); vertical-align: middle;
+        }
+        .data-table tr:hover { background: rgba(255,255,255,0.02); }
+
+        /* Threat Row Details */
+        .threat-title { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .threat-desc { font-size: 12px; color: var(--text-muted); }
+
+        /* Configuration Settings layout */
+        .settings-card {
+            background: var(--bg-card); border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md); padding: 24px; display: flex; flex-direction: column; gap: 20px;
+        }
+        .settings-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-light);
+        }
+        .settings-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .settings-label { display: flex; flex-direction: column; gap: 4px; }
+        .settings-title { font-size: 14.5px; font-weight: 500; color: var(--text-primary); }
+        .settings-desc { font-size: 12.5px; color: var(--text-muted); max-width: 480px; }
+        
+        /* Interactive Toggle Switch */
+        .switch {
+            position: relative; display: inline-block; width: 44px; height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 22px;
+            border: 1px solid var(--border-strong);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+            background-color: var(--text-secondary); transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--doria-yellow-dim); border-color: var(--doria-yellow); }
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--doria-yellow); }
+
+        /* Detail Sidebar Area */
+        .detail-sidebar { display: flex; flex-direction: column; gap: 24px; }
+        .about-section {
+            background: var(--bg-card); border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md); padding: 20px;
+        }
+        .about-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px;}
+
+        /* Notification Toast styles */
+        .toast-container {
+            position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            background: #383431; border: 1px solid var(--border-strong);
+            border-left: 4px solid var(--doria-yellow); border-radius: var(--radius-md);
+            padding: 12px 18px; color: var(--text-primary); font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px;
+            transform: translateY(100px); opacity: 0; animation: toastUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes toastUp { to { transform: translateY(0); opacity: 1; } }
+
+        /* Chevrons & Spacing for Tree Nesting */
+        .folder-chevron {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            margin-right: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .folder-chevron.expanded {
+            transform: rotate(90deg);
+        }
+        .chevron-spacer {
+            display: inline-block;
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Panel Switcher Animations */
+        .detail-sidebar .about-section {
+            display: none;
+        }
+        .detail-sidebar .about-section.active-panel {
+            display: block !important;
+            animation: slideInPanel 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideInPanel {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Interactive stat hovers inside Risk Assessment */
+        #sidebar-stat-outdated:hover {
+            background: rgba(242, 204, 96, 0.08) !important;
+            border-color: rgba(242, 204, 96, 0.3) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--doria-yellow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 14v-8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v2"></path>
+                <path d="M4 10h12"></path>
+                <path d="M10 4v10"></path>
+                <path d="M4 18v-2h6"></path>
+                <path d="M11 14.5l4.5 -2l4.5 2v4c0 3 -2.5 6 -4.5 7c-2 -1 -4.5 -4 -4.5 -7v-4z"></path>
+            </svg>
+            <div class="wordmark-text">Doria</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Platform</div>
+            <a href="./dashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </a>
+            <a href="./orgs.html" class="nav-item active">
+                <i data-lucide="folder-code"></i> Codebases
+            </a>
+            <a href="./threats.html" class="nav-item">
+                <i data-lucide="shield-alert"></i> Threats
+            </a>
+            
+            <div class="nav-section-title" style="margin-top: 16px;">System</div>
+            <a href="./settings.html" class="nav-item">
+                <i data-lucide="settings"></i> Settings
+            </a>
+        </nav>
+        
+        <div class="sidebar-bottom-container">
+            <div class="security-health-widget">
+                <div class="health-ring-container">
+                    <div class="health-ring-glow"></div>
+                    <svg width="40" height="40" viewBox="0 0 40 40" class="health-ring-svg">
+                        <circle cx="20" cy="20" r="17" fill="none" stroke-width="3" class="track"></circle>
+                        <circle cx="20" cy="20" r="17" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="106.81" stroke-dashoffset="28.84" class="progress"></circle>
+                    </svg>
+                    <span class="health-ring-text">73</span>
+                </div>
+                <div class="health-info">
+                    <span class="health-title">Security Health</span>
+                    <span class="health-subtitle">3 repos monitored</span>
+                </div>
+            </div>
+
+            <div class="sidebar-row" onclick="return false;" style="margin-top: 4px; margin-bottom: 4px;">
+                <div class="row-icon">
+                    <i data-lucide="bell" style="width: 17px; height: 17px;"></i>
+                </div>
+                <span class="row-text">Alerts</span>
+                <span class="row-badge">3</span>
+            </div>
+
+            <!-- Profile Card & Flyout Wrapper -->
+            <div class="profile-card-wrapper">
+                
+                <!-- NEW Refined Flyout Menu -->
+                <div class="profile-flyout" id="profile-flyout">
+                    <div class="flyout-header">
+                        <img src="https://avatars.githubusercontent.com/u/96030189?v=4" class="flyout-avatar" alt="Elvis Chege">
+                        <div class="flyout-text">
+                            <span class="flyout-name">Elvis Chege</span>
+                            <span class="flyout-email mono">elvis@doria.dev</span>
+                        </div>
+                    </div>
+                    <div class="flyout-menu">
+                        <a href="#" class="flyout-item"><i data-lucide="user"></i> Account Settings</a>
+                        <a href="#" class="flyout-item"><i data-lucide="credit-card"></i> Billing & Plan</a>
+                        <a href="#" class="flyout-item">
+                            <i data-lucide="zap"></i> Active Features
+                            <span class="pro-badge" style="margin-left: auto;">PRO</span>
+                        </a>
+                        <div class="flyout-divider"></div>
+                        <a href="#" class="flyout-item"><i data-lucide="shield"></i> Security Log</a>
+                        <a href="#" class="flyout-item"><i data-lucide="book"></i> Documentation</a>
+                        <div class="flyout-divider"></div>
+                        <a href="#" class="flyout-item flyout-logout"><i data-lucide="log-out"></i> Sign Out</a>
+                    </div>
+                </div>
+
+                <!-- Profile Card Button -->
+                <div class="profile-card" id="profile-btn">
+                    <div class="profile-container">
+                        <img src="https://avatars.githubusercontent.com/u/96030189?v=4" class="profile-avatar" alt="User Avatar">
+                        <div class="online-dot"></div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name-row">
+                            <span class="profile-name">Elvis Chege</span>
+                            <span class="pro-badge">PRO</span>
+                        </div>
+                        <span class="profile-role">Workspace Admin</span>
+                    </div>
+                    <div class="profile-action">
+                        <i data-lucide="chevrons-up-down" style="width: 14px; height: 14px;"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="topbar">
+            <h1 class="page-title">Codebases</h1>
+            <!-- The dynamic repository filter search bar -->
+            <div class="repo-search-bar" id="repo-search-wrapper">
+                <i data-lucide="search" style="width:14px;color:var(--text-muted)"></i>
+                <input type="text" class="search-input" id="repo-search" placeholder="Filter connected repositories..." spellcheck="false">
+            </div>
+        </header>
+
+        <!-- VIEW 1: REPOSITORY LISTING -->
+        <div id="view-codebases" class="view-section active">
+            <div class="cb-header-row">
+                <div class="cb-header-left">
+                    <span class="cb-subtitle" id="repo-count-sub">Please connect a GitHub account to get started</span>
+                </div>
+                <button class="btn-github" id="btn-connect-github" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                    Connect GitHub
+                </button>
+            </div>
+
+            <!-- Mode 1: Empty State View -->
+            <div id="empty-state-view" class="empty-state-container">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                </div>
+                <h3 class="empty-state-title">Please connect a GitHub to get started</h3>
+                <p class="empty-state-desc">Integrate your active team accounts, scan vulnerability histories, and verify build integrity instantly inside Acme Corp Prod.</p>
+                <button class="btn-github" id="btn-empty-state-connect" style="background:var(--doria-yellow); color:#2A2725; border:none; padding: 10px 22px; font-weight:600;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                    Connect GitHub
+                </button>
+            </div>
+
+            <!-- Mode 2: Connected grid view -->
+            <div class="repo-grid" id="repositories-target-grid" style="display:none;">
+                <!-- Connected codebase cards rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: DRILLDOWN TABBED WRAPPER -->
+        <div id="view-repo-detail" class="view-section">
+            <div class="detail-header">
+                <div class="breadcrumb">
+                    <a href="#" class="breadcrumb-link" id="btn-back"><i data-lucide="arrow-left" style="width:14px;"></i> Codebases</a>
+                    <span>/</span>
+                    <span class="repo-owner mono" id="detail-owner-name">...</span>
+                    <span class="repo-slash mono">/</span>
+                    <span class="repo-name mono" id="detail-repo-name" style="color:var(--text-primary); font-weight:600;">...</span>
+                    <span class="repo-visibility" id="detail-visibility" style="margin-left: 8px;">Private</span>
+                </div>
+                
+                <div class="detail-title-row">
+                    <div class="repo-badges" id="detail-badges-container">
+                        <!-- badges injected -->
+                    </div>
+                    <!-- Manual scan button blue background styling -->
+                    <button class="btn-github" id="btn-manual-scan" style="background:#3B82F6; color:white; border:none; box-shadow:0 4px 12px rgba(59, 130, 246, 0.25);">
+                        <i data-lucide="play" style="width:14px; fill:white;"></i> Run Security Scan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs System -->
+            <div class="repo-tabs" id="detail-tab-row">
+                <div class="repo-tab active" data-tab="code">
+                    <i data-lucide="code" style="width:16px;"></i> Code
+                </div>
+                <div class="repo-tab" data-tab="threats">
+                    <i data-lucide="shield-alert" style="width:16px;"></i> Security Threats 
+                    <span class="tab-count danger" id="badge-threats-count">0</span>
+                </div>
+                <div class="repo-tab" data-tab="dependencies">
+                    <i data-lucide="box" style="width:16px;"></i> Dependencies 
+                    <span class="tab-count" id="badge-deps-count">0</span>
+                </div>
+                <div class="repo-tab" data-tab="settings">
+                    <i data-lucide="settings" style="width:16px;"></i> Settings
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <!-- Left panel view switcher -->
+                <div class="panel-container">
+                    
+                    <!-- PANEL A: CODE VIEW (File Explorer) -->
+                    <div class="tab-panel active" id="panel-code">
+                        <div class="explorer-panel">
+                            <div class="explorer-header">
+                                <div class="commit-info">
+                                    <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">
+                                        <i data-lucide="bot" style="width:14px;color:var(--doria-yellow);"></i>
+                                    </div>
+                                    <span>
+                                        <span class="commit-msg">Latest Scan Commit:</span> 
+                                        <span class="mono" id="detail-commit-sha" style="color:var(--doria-yellow);">a1b2c3d</span>
+                                    </span>
+                                </div>
+                                <span style="color:var(--text-muted);" id="detail-scan-time">1 hour ago</span>
+                            </div>
+                            
+                            <!-- File Explorer body (Interactive, fully nested tree) -->
+                            <div class="explorer-body" id="explorer-files-container">
+                                <!-- File rows parsed dynamically via high-fidelity tree engine -->
+                            </div>
+
+                            <!-- High-fidelity timeline widget connected via system events tracking -->
+                            <div style="border-top: 1px solid var(--border-light); padding: 24px 20px; background: rgba(0, 0, 0, 0.15);">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                                    <h4 style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
+                                        <i data-lucide="history" style="width: 13px; height: 13px; color: var(--text-muted);"></i>
+                                        Recent Scan Activity
+                                    </h4>
+                                    <span style="font-size: 10px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 10px; font-weight: 600;">3 EVENTS LOGGED</span>
+                                </div>
+                                
+                                <div style="position: relative; display: flex; flex-direction: column; gap: 16px;">
+                                    <!-- Continuous Line -->
+                                    <div style="position: absolute; left: 11px; top: 12px; bottom: 12px; width: 2px; background: var(--border-strong); z-index: 0;"></div>
+                                    
+                                    <!-- Event 1 -->
+                                    <div style="display: flex; gap: 16px; position: relative; z-index: 1;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; width: 24px; flex-shrink: 0;">
+                                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--safe-green-dim); border: 1px solid rgba(126, 231, 135, 0.25); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                                                <i data-lucide="shield-check" style="width: 12px; height: 12px; color: var(--safe-green);"></i>
+                                            </div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light);">
+                                            <span style="font-size: 13px; color: #F1F5F9; font-weight: 500;">Full scan completed — <span style="color: var(--text-secondary); font-weight: 400;">147 dependencies verified</span></span>
+                                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">2 mins ago</span>
+                                        </div>
+                                    </div>
+                                    <!-- Event 2 -->
+                                    <div style="display: flex; gap: 16px; position: relative; z-index: 1;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; width: 24px; flex-shrink: 0;">
+                                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--warning-amber-dim); border: 1px solid rgba(242, 204, 96, 0.25); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                                                <i data-lucide="key-round" style="width: 12px; height: 12px; color: var(--warning-amber);"></i>
+                                            </div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; justify-content: space-between; align-items: center; background: rgba(255,123,114,0.03); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,123,114,0.15);">
+                                            <span style="font-size: 13px; color: #F1F5F9; font-weight: 500;">.env.example flagged — <span style="color: var(--threat-red);">3 hardcoded secrets exposed</span></span>
+                                            <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">2 mins ago</span>
+                                        </div>
+                                    </div>
+                                    <!-- Event 3 (Last) -->
+                                    <div style="display: flex; gap: 16px; align-items: flex-start; position: relative; z-index: 1;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; width: 24px; flex-shrink: 0; padding-top: 2px;">
+                                            <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                                                <i data-lucide="git-commit" style="width: 12px; height: 12px; color: var(--text-secondary);"></i>
+                                            </div>
+                                        </div>
+                                        <div style="flex: 1; padding-top: 2px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light);">
+                                                <span style="font-size: 13px; color: #F1F5F9; font-weight: 500;">Scan initiated by push to main (<span class="mono" style="color: var(--doria-yellow);">f1a238b</span>)</span>
+                                                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 500;">2 mins ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL B: THREATS VIEW -->
+                    <div class="tab-panel" id="panel-threats">
+                        <div class="explorer-panel">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Threat Vector</th>
+                                        <th>Severity</th>
+                                        <th>File Target</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-threats-body">
+                                    <!-- Injected threats -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PANEL C: DEPENDENCIES VIEW -->
+                    <div class="tab-panel" id="panel-dependencies">
+                        <div class="explorer-panel">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dependency</th>
+                                        <th>Target Version</th>
+                                        <th>Status</th>
+                                        <th>License</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-deps-body">
+                                    <!-- Injected dependencies -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PANEL D: SETTINGS VIEW -->
+                    <div class="tab-panel" id="panel-settings">
+                        <div class="settings-card">
+                            <div class="settings-row">
+                                <div class="settings-label">
+                                    <span class="settings-title">Automated Pull Request Scans</span>
+                                    <span class="settings-desc">Scan incoming changes automatically before merging code into the default branch.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-row">
+                                <div class="settings-label">
+                                    <span class="settings-title">Slack Notifications</span>
+                                    <span class="settings-desc">Receive immediate alerts inside Slack channels upon detection of critical package threats.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="slack-notif-switch">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-row">
+                                <div class="settings-label">
+                                    <span class="settings-title">Fail Builds on Critical Threats</span>
+                                    <span class="settings-desc">Enforce standard build failures if malicious payloads or active dependency confusion routes are found.</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Right Side: Dynamic Sidebar Panels -->
+                <div class="detail-sidebar">
+                    <!-- Panel 1: Risk Assessment (Default) -->
+                    <div id="sidebar-risk-assessment" class="about-section active-panel">
+                        <h3 class="about-title" style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--doria-yellow);"></i>
+                            Risk Assessment
+                        </h3>
+                        
+                        <div class="risk-section" style="border:none; padding:0; margin-bottom: 20px;">
+                            <div class="risk-header">
+                                <span class="risk-label" style="font-size:12px; color:var(--text-primary);">Overall Score</span>
+                                <span class="risk-badge" id="widget-risk-badge" style="font-size:12px; padding: 4px 10px;">HIGH - 82%</span>
+                            </div>
+                            <div class="risk-bar-bg" style="height:6px; background:rgba(0,0,0,0.4);">
+                                <div class="risk-bar-fill" id="widget-risk-fill" style="width: 0%;"></div>
+                            </div>
+                            <!-- Brief explanation line placed directly under score bar with custom warning icon -->
+                            <div style="font-size: 12px; color: #64748B; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="info" style="width: 13px; height: 13px; color: #64748B;"></i>
+                                18 of 147 dependencies flagged for review
+                            </div>
+                        </div>
+                        
+                        <div class="repo-stats" style="flex-direction:column; align-items:flex-start; gap:12px;">
+                            <!-- Active Threats dynamically handled by JS (Red danger or Green Safe mode) -->
+                            <div class="stat-item" id="sidebar-stat-threats" style="font-size:13px; width: 100%; display: flex; align-items: center; justify-content: space-between; border-radius: 6px; padding: 10px 12px;">
+                                <!-- Hydrated dynamically by JS -->
+                            </div>
+                            
+                            <div class="stat-item warning" id="sidebar-stat-outdated" style="font-size:13px; width: 100%; display: flex; align-items: center; justify-content: space-between; background: rgba(242, 204, 96, 0.03); border: 1px solid rgba(242, 204, 96, 0.15); padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <!-- Hydrated dynamically by JS -->
+                            </div>
+                            <div class="stat-item" id="sidebar-stat-deps" style="font-size:13px; color:var(--text-secondary); width: 100%; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.01); border: 1px solid var(--border-light); padding: 10px 12px; border-radius: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="box" style="width:16px;height:16px; color: var(--text-muted);"></i> 
+                                    <span><strong>89</strong> Total Dependencies Monitored</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: package.json outdated dependencies sliding view -->
+                    <div id="sidebar-package-details" class="about-section">
+                        <div class="panel-header-custom" style="margin-bottom: 20px;">
+                            <i data-lucide="x" class="close-panel-btn" onclick="resetSidebarPanel()" style="cursor: pointer; float: right; color: var(--text-muted); width: 16px; height: 16px;"></i>
+                            <h3 class="mono" style="font-weight: 700; font-size: 15px; color: var(--text-primary);">package.json</h3>
+                            <div style="font-size: 12.5px; color: var(--warning-amber); margin-top: 4px;">3 outdated dependencies found</div>
+                        </div>
+                        
+                        <div class="dep-fix-list" style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- Row 1 -->
+                            <div class="dep-fix-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                                <div>
+                                    <div class="mono" style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">lodash</div>
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px;">
+                                        <span style="color: var(--threat-red); font-weight: 500;">4.17.20</span>
+                                        <i data-lucide="arrow-right" style="width: 12px; height: 12px; color: var(--text-muted);"></i>
+                                        <span style="color: var(--safe-green); font-weight: 500;">4.17.21</span>
+                                    </div>
+                                    <div style="font-size: 11.5px; color: #FF8A8A; margin-top: 4px;">CVE-2021-23337</div>
+                                </div>
+                                <button class="btn-github" style="background: #3B82F6; color: white; border: none; border-radius: 12px; padding: 4px 12px; font-size: 11.5px; font-weight: 600;" onclick="fixDependency('lodash')">Fix</button>
+                            </div>
+                            <!-- Row 2 -->
+                            <div class="dep-fix-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                                <div>
+                                    <div class="mono" style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">axios</div>
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px;">
+                                        <span style="color: var(--threat-red); font-weight: 500;">0.21.1</span>
+                                        <i data-lucide="arrow-right" style="width: 12px; height: 12px; color: var(--text-muted);"></i>
+                                        <span style="color: var(--safe-green); font-weight: 500;">1.6.0</span>
+                                    </div>
+                                    <div style="font-size: 11.5px; color: #FF8A8A; margin-top: 4px;">CVE-2023-45857</div>
+                                </div>
+                                <button class="btn-github" style="background: #3B82F6; color: white; border: none; border-radius: 12px; padding: 4px 12px; font-size: 11.5px; font-weight: 600;" onclick="fixDependency('axios')">Fix</button>
+                            </div>
+                            <!-- Row 3 -->
+                            <div class="dep-fix-row" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+                                <div>
+                                    <div class="mono" style="font-size: 13.5px; font-weight: 600; color: var(--text-primary);">minimist</div>
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px;">
+                                        <span style="color: var(--threat-red); font-weight: 500;">1.2.5</span>
+                                        <i data-lucide="arrow-right" style="width: 12px; height: 12px; color: var(--text-muted);"></i>
+                                        <span style="color: var(--safe-green); font-weight: 500;">1.2.8</span>
+                                    </div>
+                                    <div style="font-size: 11.5px; color: #FF8A8A; margin-top: 4px;">CVE-2021-44906</div>
+                                </div>
+                                <button class="btn-github" style="background: #3B82F6; color: white; border: none; border-radius: 12px; padding: 4px 12px; font-size: 11.5px; font-weight: 600;" onclick="fixDependency('minimist')">Fix</button>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn-github" style="width: 100%; background: #3B82F6; color: white; border: none; font-weight: 700; padding: 10px; border-radius: 8px; font-size: 13.5px; justify-content: center;" onclick="fixAllDependencies()">
+                                Fix All with Doria
+                            </button>
+                            <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 8px; line-height: 1.4;">
+                                Doria will open a PR with all three fixes and run your test suite automatically.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Code Viewer (.env.example) -->
+                    <div id="sidebar-code-viewer" class="about-section">
+                        <div class="panel-header-custom" style="margin-bottom: 16px;">
+                            <i data-lucide="x" class="close-panel-btn" onclick="resetSidebarPanel()" style="cursor: pointer; float: right; color: var(--text-muted); width: 16px; height: 16px;"></i>
+                            <h3 class="mono" style="font-weight: 700; font-size: 15px; color: var(--text-primary); display: inline-block;">.env.example</h3>
+                        </div>
+                        
+                        <div style="background: #0a0c10; padding: 12px 8px; border-radius: 6px; border: 1px solid var(--border-light); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; overflow-x: auto; line-height: 1.6; margin-bottom: 16px;">
+                            <div style="display: flex; flex-direction: column;">
+                                <!-- Line 1 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px;">
+                                    <div style="display: flex; align-items: flex-start;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">1</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap;">DATABASE_URL=postgres://localhost:5432/mydb</span>
+                                    </div>
+                                </div>
+                                <!-- Line 2 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px;">
+                                    <div style="display: flex; align-items: flex-start;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">2</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap;">PORT=3000</span>
+                                    </div>
+                                </div>
+                                <!-- Line 3 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px;">
+                                    <div style="display: flex; align-items: flex-start;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">3</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap;">NODE_ENV=development</span>
+                                    </div>
+                                </div>
+                                <!-- Line 4 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; border-left: 3px solid #EF4444; background: rgba(239, 68, 68, 0.03); margin-left: -4px;">
+                                    <div style="display: flex; align-items: flex-start; padding-left: 4px;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">4</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap;">AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE</span>
+                                    </div>
+                                    <span style="font-size: 8px; font-weight: 700; color: #EF4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-left: 8px;">SECRET EXPOSED</span>
+                                </div>
+                                <!-- Line 5 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; border-left: 3px solid #EF4444; background: rgba(239, 68, 68, 0.03); margin-left: -4px; margin-top: 1px;">
+                                    <div style="display: flex; align-items: flex-start; padding-left: 4px;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">5</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;" title="AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">AWS_SECRET_ACCESS_KEY=wJalr...</span>
+                                    </div>
+                                    <span style="font-size: 8px; font-weight: 700; color: #EF4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-left: 8px;">SECRET EXPOSED</span>
+                                </div>
+                                <!-- Line 6 -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; border-left: 3px solid #EF4444; background: rgba(239, 68, 68, 0.03); margin-left: -4px; margin-top: 1px;">
+                                    <div style="display: flex; align-items: flex-start; padding-left: 4px;">
+                                        <span style="color: #64748B; width: 20px; display: inline-block; user-select: none; text-align: right; margin-right: 8px;">6</span>
+                                        <span style="color: var(--text-secondary); white-space: nowrap;">STRIPE_SECRET_KEY=sk_live_abc123def456</span>
+                                    </div>
+                                    <span style="font-size: 8px; font-weight: 700; color: #EF4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap; margin-left: 8px;">SECRET EXPOSED</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(245, 158, 11, 0.06); border-left: 3px solid #F59E0B; padding: 12px; border-radius: 0 4px 4px 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+                            Doria detected 3 hardcoded secrets in this file. These should be moved to a secrets manager immediately. Click Fix to have Doria open a PR that removes these values and adds them to your .env.example as empty placeholders.
+                        </div>
+
+                        <button class="btn-github" style="width: 100%; background: #3B82F6; color: white; border: none; font-weight: 700; padding: 10px; border-radius: 8px; font-size: 13.5px; justify-content: center;" onclick="fixSecrets()">
+                            Fix with Doria
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- UI Feedback Containers -->
+    <div class="toast-container" id="toast-wrapper"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // Profile Menu Logic
+        const profileBtn = document.getElementById('profile-btn');
+        const profileFlyout = document.getElementById('profile-flyout');
+        
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileFlyout.classList.toggle('open');
+            profileBtn.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!profileFlyout.contains(e.target) && profileFlyout.classList.contains('open')) {
+                profileFlyout.classList.remove('open');
+                profileBtn.classList.remove('active');
+            }
+        });
+
+        // High-fidelity official vector SVGs (Resolved Python rendering utilizing official Wikimedia CDN)
+        const techLogos = {
+            typescript: `<svg viewBox="0 0 100 100" style="border-radius: 2px;"><rect width="100" height="100" fill="#3178c6"/><text x="16" y="78" fill="#fff" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="62px">TS</text></svg>`,
+            nodejs: `<svg viewBox="0 0 24 24" fill="none" stroke="#529F41" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3.5 7v10L12 22l8.5-5V7L12 2z"/><path d="M12 22V12"/></svg>`,
+            python: `<img src="https://cdn.simpleicons.org/python/3776AB" alt="Python" style="width: 14px; height: 14px; flex-shrink: 0;" />`,
+            fastapi: `<svg viewBox="0 0 24 24" fill="#009688"><path d="M12 2L3.5 7v10L12 22l8.5-5V7L12 2z" fill-opacity="0.15" stroke="#009688" stroke-width="1.5"/><path d="M13 6l-6 7.5h5V18l6-7.5h-5z" fill="#009688"/></svg>`,
+            pytorch: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 14px; height: 14px;"><path d="M12.005.04l-7.03 7.03a9.832 9.832 0 0 0 0 13.975 9.833 9.833 0 0 0 13.976 0c3.97-3.887 3.972-10.171.084-13.976l-1.738 1.737c2.895 2.895 2.895 7.608 0 10.503-2.894 2.894-7.608 2.894-10.503 0C3.9 16.414 3.9 11.7 6.794 8.806l4.632-4.631.58-.663zm3.556 3.886a1.323 1.323 0 0 0-1.323 1.323 1.323 1.323 0 0 0 1.323 1.323 1.323 1.323 0 0 0 1.323-1.323 1.323 1.323 0 0 0-1.323-1.323z" fill="#EE4C2C"/></svg>`
+        };
+
+        // GitHub SVG logo for connected state button
+        const githubSvgString = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>`;
+
+        // Data engine storing configuration details for all current repositories
+        const codebasesData = {
+            "app": {
+                name: "app",
+                owner: "doria-org",
+                visibility: "Private",
+                languages: ["TypeScript", "Node.js"],
+                lastScanned: "Just now",
+                riskLabel: "LOW",
+                riskPercent: 18,
+                totalDeps: 147,
+                threatsCount: 0,
+                outdatedCount: 3,
+                commit: "f1a238b",
+                files: [
+                    { name: ".github/workflows", type: "folder", path: ".github/workflows", parentPath: "", depth: 0, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "3 days ago" },
+                    { name: "ci.yml", type: "file", path: ".github/workflows/ci.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    { name: "deploy.yml", type: "file", path: ".github/workflows/deploy.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    
+                    { name: "src", type: "folder", path: "src", parentPath: "", depth: 0, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "components", type: "folder", path: "src/components", parentPath: "src", depth: 1, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "Button.tsx", type: "file", path: "src/components/Button.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    { name: "Nav.tsx", type: "file", path: "src/components/Nav.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    
+                    { name: "lib", type: "folder", path: "src/lib", parentPath: "src", depth: 1, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "1 day ago" },
+                    { name: "utils.ts", type: "file", path: "src/lib/utils.ts", parentPath: "src/lib", depth: 2, status: "SAFE", msg: "Verified", updated: "1 day ago" },
+                    
+                    { name: "index.ts", type: "file", path: "src/index.ts", parentPath: "src", depth: 1, status: "SAFE", msg: "Verified", updated: "5 days ago" },
+                    
+                    { name: "package.json", type: "file", path: "package.json", parentPath: "", depth: 0, status: "OUTDATED", msg: "3 vulnerable dependencies", updated: "2 mins ago" },
+                    { name: "tsconfig.json", type: "file", path: "tsconfig.json", parentPath: "", depth: 0, status: "SAFE", msg: "Verified", updated: "1 week ago" },
+                    { name: "env.example", displayName: ".env.example", type: "file", path: ".env.example", parentPath: "", depth: 0, status: "FLAGGED", msg: "Potential secret exposure", updated: "just now" }
+                ],
+                threats: [],
+                dependencies: [
+                    { name: "react", version: "18.2.0", status: "SAFE", license: "MIT" },
+                    { name: "typescript", version: "5.1.3", status: "SAFE", license: "Apache-2.0" },
+                    { name: "express", version: "4.18.2", status: "OUTDATED", license: "MIT" },
+                    { name: "lodash", version: "4.17.21", status: "OUTDATED", license: "MIT" },
+                    { name: "jest", version: "29.5.0", status: "SAFE", license: "MIT" }
+                ]
+            },
+            "data-pipeline": {
+                name: "data-pipeline",
+                owner: "it-web-org",
+                visibility: "Private",
+                languages: ["Python", "FastAPI"],
+                lastScanned: "1 hour ago",
+                riskLabel: "HIGH",
+                riskPercent: 82,
+                totalDeps: 89,
+                threatsCount: 7,
+                outdatedCount: 12,
+                commit: "a1b2c3d",
+                files: [
+                    { name: ".github/workflows", type: "folder", path: ".github/workflows", parentPath: "", depth: 0, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "3 days ago" },
+                    { name: "ci.yml", type: "file", path: ".github/workflows/ci.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    { name: "deploy.yml", type: "file", path: ".github/workflows/deploy.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    
+                    { name: "src", type: "folder", path: "src", parentPath: "", depth: 0, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "components", type: "folder", path: "src/components", parentPath: "src", depth: 1, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "Button.tsx", type: "file", path: "src/components/Button.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    { name: "Nav.tsx", type: "file", path: "src/components/Nav.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    
+                    { name: "lib", type: "folder", path: "src/lib", parentPath: "src", depth: 1, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "1 day ago" },
+                    { name: "utils.ts", type: "file", path: "src/lib/utils.ts", parentPath: "src/lib", depth: 2, status: "SAFE", msg: "Verified", updated: "1 day ago" },
+                    
+                    { name: "index.ts", type: "file", path: "src/index.ts", parentPath: "src", depth: 1, status: "SAFE", msg: "Verified", updated: "5 days ago" },
+                    
+                    { name: "package.json", type: "file", path: "package.json", parentPath: "", depth: 0, status: "OUTDATED", msg: "3 vulnerable dependencies", updated: "2 mins ago" },
+                    { name: "tsconfig.json", type: "file", path: "tsconfig.json", parentPath: "", depth: 0, status: "SAFE", msg: "Verified", updated: "1 week ago" },
+                    { name: "env.example", displayName: ".env.example", type: "file", path: ".env.example", parentPath: "", depth: 0, status: "FLAGGED", msg: "Potential secret exposure", updated: "just now" }
+                ],
+                threats: [
+                    { title: "Dependency Confusion Target", desc: "Forced resolution to non-existent public index module", severity: "CRITICAL", file: "package.json" },
+                    { title: "Obfuscated payload loader", desc: "Detected base64 dynamic module code evaluation routine", severity: "HIGH", file: "src/lib/utils.ts" },
+                    { title: "Malicious inbound socket open", desc: "Outbound socket listener detected binding network tasks to /api", severity: "HIGH", file: "src/components/Nav.tsx" }
+                ],
+                dependencies: [
+                    { name: "fastapi", version: "0.95.0", status: "SAFE", license: "MIT" },
+                    { name: "uvicorn", version: "0.21.1", status: "SAFE", license: "BSD-3" },
+                    { name: "requests", version: "2.28.1", status: "OUTDATED", license: "Apache-2.0" },
+                    { name: "numpy", version: "1.22.0", status: "OUTDATED", license: "BSD" },
+                    { name: "cryptography", version: "39.0.1", status: "SAFE", license: "Apache-2.0" },
+                    { name: "lodash", version: "4.17.20", status: "OUTDATED", license: "MIT" },
+                    { name: "axios", version: "0.21.1", status: "OUTDATED", license: "MIT" },
+                    { name: "minimist", version: "1.2.5", status: "OUTDATED", license: "MIT" }
+                ]
+            },
+            "Portfolio": {
+                name: "Portfolio",
+                owner: "elviscgn",
+                visibility: "Public",
+                languages: ["Python", "PyTorch"],
+                lastScanned: "3 hours ago",
+                riskLabel: "MEDIUM",
+                riskPercent: 47,
+                totalDeps: 203,
+                threatsCount: 2,
+                outdatedCount: 8,
+                commit: "bc87d12",
+                files: [
+                    { name: ".github/workflows", type: "folder", path: ".github/workflows", parentPath: "", depth: 0, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "3 days ago" },
+                    { name: "ci.yml", type: "file", path: ".github/workflows/ci.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    { name: "deploy.yml", type: "file", path: ".github/workflows/deploy.yml", parentPath: ".github/workflows", depth: 1, status: "SAFE", msg: "Verified", updated: "3 days ago" },
+                    
+                    { name: "src", type: "folder", path: "src", parentPath: "", depth: 0, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "components", type: "folder", path: "src/components", parentPath: "src", depth: 1, isCollapsed: false, status: "SAFE", msg: "No issues found", updated: "2 mins ago" },
+                    { name: "Button.tsx", type: "file", path: "src/components/Button.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    { name: "Nav.tsx", type: "file", path: "src/components/Nav.tsx", parentPath: "src/components", depth: 2, status: "SAFE", msg: "Verified", updated: "2 mins ago" },
+                    
+                    { name: "lib", type: "folder", path: "src/lib", parentPath: "src", depth: 1, isCollapsed: true, status: "SAFE", msg: "No issues found", updated: "1 day ago" },
+                    { name: "utils.ts", type: "file", path: "src/lib/utils.ts", parentPath: "src/lib", depth: 2, status: "SAFE", msg: "Verified", updated: "1 day ago" },
+                    
+                    { name: "index.ts", type: "file", path: "src/index.ts", parentPath: "src", depth: 1, status: "SAFE", msg: "Verified", updated: "5 days ago" },
+                    
+                    { name: "package.json", type: "file", path: "package.json", parentPath: "", depth: 0, status: "OUTDATED", msg: "3 vulnerable dependencies", updated: "2 mins ago" },
+                    { name: "tsconfig.json", type: "file", path: "tsconfig.json", parentPath: "", depth: 0, status: "SAFE", msg: "Verified", updated: "1 week ago" },
+                    { name: "env.example", displayName: ".env.example", type: "file", path: ".env.example", parentPath: "", depth: 0, status: "FLAGGED", msg: "Potential secret exposure", updated: "just now" }
+                ],
+                threats: [
+                    { title: "Arbitrary deserialization via pickle", desc: "Insecure usage of unpickling module loading unsafe model data", severity: "HIGH", file: "models/weight_reader.py" },
+                    { title: "PyYAML loader exploit risk", desc: "Unrestricted dynamic code block parse trigger available", severity: "MEDIUM", file: "requirements.txt" }
+                ],
+                dependencies: [
+                    { name: "torch", version: "2.0.0", status: "SAFE", license: "BSD-3" },
+                    { name: "torchvision", version: "0.15.1", status: "SAFE", license: "BSD-3" },
+                    { name: "pyyaml", version: "5.4.1", status: "OUTDATED", license: "MIT" },
+                    { name: "scikit-learn", version: "1.2.1", status: "SAFE", license: "BSD-3" }
+                ]
+            }
+        };
+
+        let currentActiveRepoKey = "data-pipeline";
+        let isGitHubConnected = true; 
+
+        function refreshIcons() {
+            lucide.createIcons();
+        }
+
+        function showNotification(message) {
+            const wrapper = document.getElementById('toast-wrapper');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i data-lucide="info" style="width:16px;color:var(--doria-yellow)"></i> <span>${message}</span>`;
+            wrapper.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function updateGitHubState() {
+            const emptyState = document.getElementById('empty-state-view');
+            const repoGrid = document.getElementById('repositories-target-grid');
+            const headerBtn = document.getElementById('btn-connect-github');
+            const headerSubtitle = document.getElementById('repo-count-sub');
+            const searchBar = document.getElementById('repo-search-wrapper');
+
+            if (!isGitHubConnected) {
+                emptyState.style.display = 'flex';
+                repoGrid.style.display = 'none';
+                searchBar.classList.add('disabled');
+                headerSubtitle.innerText = "Please connect a GitHub account to get started";
+                headerBtn.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                repoGrid.style.display = 'grid';
+                searchBar.classList.remove('disabled');
+                headerBtn.style.display = 'inline-flex';
+                headerBtn.className = "btn-github connected";
+                headerBtn.innerHTML = `${githubSvgString} Connected`;
+                
+                renderConnectedCodebases(document.getElementById('repo-search').value);
+            }
+            refreshIcons();
+        }
+
+        function triggerConnection() {
+            const mainBtn = document.getElementById('btn-connect-github');
+            const ctaBtn = document.getElementById('btn-empty-state-connect');
+
+            const loadingContent = `<i data-lucide="loader-2" style="width:16px; animation: spin 1s linear infinite;"></i> Connecting...`;
+            mainBtn.innerHTML = loadingContent;
+            ctaBtn.innerHTML = loadingContent;
+            refreshIcons();
+
+            setTimeout(() => {
+                isGitHubConnected = true;
+                updateGitHubState();
+                showNotification("GitHub successfully linked with Acme Corp Prod.");
+            }, 1000);
+        }
+
+        function triggerDisconnection() {
+            isGitHubConnected = false;
+            updateGitHubState();
+            showNotification("GitHub workspace credentials disconnected.");
+        }
+
+        document.getElementById('btn-connect-github').addEventListener('click', () => {
+            if (isGitHubConnected) {
+                triggerDisconnection();
+            } else {
+                triggerConnection();
+            }
+        });
+        document.getElementById('btn-empty-state-connect').addEventListener('click', triggerConnection);
+
+        function renderConnectedCodebases(filterQuery = "") {
+            const grid = document.getElementById('repositories-target-grid');
+            grid.innerHTML = "";
+
+            let matchingCount = 0;
+
+            Object.keys(codebasesData).forEach(key => {
+                const repo = codebasesData[key];
+                const matchesSearch = repo.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
+                                      repo.owner.toLowerCase().includes(filterQuery.toLowerCase()) ||
+                                      repo.languages.some(lang => lang.toLowerCase().includes(filterQuery.toLowerCase()));
+
+                if (!matchesSearch) return;
+                matchingCount++;
+
+                const badgeHtml = repo.languages.map(lang => {
+                    const lKey = lang.toLowerCase().replace('.', '');
+                    const logoSvg = techLogos[lKey] || '';
+                    const cleanClass = lang.toLowerCase() === 'typescript' ? 'badge-ts' : 
+                                       lang.toLowerCase() === 'node.js' ? 'badge-node' :
+                                       lang.toLowerCase() === 'python' ? 'badge-py' :
+                                       lang.toLowerCase() === 'fastapi' ? 'badge-fastapi' : 'badge-pytorch';
+                    return `<span class="repo-badge ${cleanClass}">${logoSvg}${lang}</span>`;
+                }).join('');
+
+                const statsIndicator = repo.threatsCount > 0 
+                    ? `<div class="stat-item danger"><i data-lucide="shield-alert"></i> ${repo.threatsCount} threats</div>` 
+                    : `<div class="stat-item safe"><i data-lucide="shield-check"></i> 0 threats</div>`;
+
+                const warnIndicator = repo.outdatedCount > 0 
+                    ? `<div class="stat-item warning"><i data-lucide="history"></i> ${repo.outdatedCount} outdated</div>` 
+                    : `<div class="stat-item"><i data-lucide="history"></i> 0 outdated</div>`;
+
+                const riskValue = repo.riskLabel.toLowerCase();
+
+                const cardHtml = `
+                    <div class="repo-card" data-repo-id="${key}" data-risk="${riskValue}">
+                        ${repo.riskLabel === 'HIGH' ? '<div class="repo-pulse"></div>' : ''}
+                        <div class="repo-top">
+                            <div class="repo-name-wrapper">
+                                <div class="repo-name mono">
+                                    <span class="repo-owner">${repo.owner}</span><span class="repo-slash">/</span><span class="repo-repo">${repo.name}</span>
+                                </div>
+                                <span class="repo-visibility">${repo.visibility}</span>
+                            </div>
+                        </div>
+                        <div class="repo-badges">${badgeHtml}</div>
+                        <div class="repo-time"><i data-lucide="clock"></i> Last scanned ${repo.lastScanned}</div>
+                        
+                        <div class="risk-section">
+                            <div class="risk-header">
+                                <span class="risk-label">Risk Score</span>
+                                <span class="risk-badge ${repo.riskLabel.toLowerCase()}">${repo.riskLabel}</span>
+                            </div>
+                            <div class="risk-bar-bg">
+                                <div class="risk-bar-fill ${repo.riskLabel.toLowerCase()}" data-percent="${repo.riskPercent}"></div>
+                            </div>
+                            <div class="repo-stats">
+                                <div class="stat-item"><i data-lucide="box"></i> ${repo.totalDeps} deps</div>
+                                ${statsIndicator}
+                                ${warnIndicator}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.risk-bar-fill').forEach(bar => {
+                    const targetWidth = bar.getAttribute('data-percent');
+                    bar.style.width = targetWidth + '%';
+                });
+            }, 50);
+
+            document.querySelectorAll('.repo-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const key = card.getAttribute('data-repo-id');
+                    openRepoDetailView(key);
+                });
+            });
+
+            document.getElementById('repo-count-sub').innerText = `${matchingCount} repositories connected to Acme Corp Prod`;
+            refreshIcons();
+        }
+
+        // File Explorer Tree recursive nesting rendering engine
+        function isNodeVisible(node, filesList) {
+            if (!node.parentPath) return true;
+            const parent = filesList.find(f => f.path === node.parentPath);
+            if (!parent) return true;
+            if (parent.isCollapsed) return false;
+            return isNodeVisible(parent, filesList);
+        }
+
+        function renderFilesTab(repo) {
+            const container = document.getElementById('explorer-files-container');
+            container.innerHTML = "";
+
+            repo.files.forEach(file => {
+                if (!isNodeVisible(file, repo.files)) return;
+
+                const icon = file.type === 'folder' ? 'folder' : 'file-code';
+                const folderClass = file.type === 'folder' ? 'folder' : '';
+
+                let statusPill = `<span class="status-pill pill-safe">SAFE</span> Verified`;
+                if (file.status === 'THREATS') {
+                    statusPill = `<span class="status-pill pill-danger">THREATS DETECTED</span> ${file.msg}`;
+                } else if (file.status === 'OUTDATED') {
+                    statusPill = `<span class="status-pill pill-warn">OUTDATED</span> ${file.msg}`;
+                } else if (file.status === 'FLAGGED') {
+                    statusPill = `<span class="status-pill pill-warn">FLAGGED</span> ${file.msg}`;
+                }
+
+                const visualStyle = file.status === 'THREATS' 
+                    ? `style="background: rgba(255, 123, 114, 0.05); border-left: 2px solid var(--threat-red);"` 
+                    : '';
+
+                // Highly precise mathematical alignment offset matching folder nodes with chevrons
+                const indentStyle = `padding-left: ${file.depth * 20}px;`;
+
+                // Standardized 20px structural spacing ensuring perfect vertical lines
+                const chevronHtml = file.type === 'folder'
+                    ? `<div class="folder-chevron ${file.isCollapsed ? '' : 'expanded'}"><i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i></div>`
+                    : `<div class="chevron-spacer"></div>`;
+
+                const onClickAttr = file.type === 'folder' 
+                    ? `onclick="toggleFolder('${file.path}', event)"` 
+                    : `onclick="handleFileClick('${file.name}', '${file.path}', event)"`;
+
+                const row = `
+                    <div class="file-row" ${visualStyle} ${onClickAttr}>
+                        <div class="file-name ${folderClass}" style="${indentStyle}">
+                            ${chevronHtml}
+                            <i data-lucide="${icon}"></i> 
+                            <span class="mono">${file.displayName || file.name}</span>
+                        </div>
+                        <div class="file-status">${statusPill}</div>
+                        <div class="file-date">${file.updated}</div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', row);
+            });
+            refreshIcons();
+        }
+
+        window.toggleFolder = function(path, event) {
+            if (event) event.stopPropagation();
+            const currentRepo = codebasesData[currentActiveRepoKey];
+            const folder = currentRepo.files.find(f => f.path === path);
+            if (folder) {
+                folder.isCollapsed = !folder.isCollapsed;
+                renderFilesTab(currentRepo);
+            }
+        };
+
+        window.handleFileClick = function(name, path, event) {
+            if (event) event.stopPropagation();
+            const riskAssessment = document.getElementById('sidebar-risk-assessment');
+            const packageDetails = document.getElementById('sidebar-package-details');
+            const codeViewer = document.getElementById('sidebar-code-viewer');
+
+            riskAssessment.style.display = 'none';
+            packageDetails.style.display = 'none';
+            codeViewer.style.display = 'none';
+
+            riskAssessment.classList.remove('active-panel');
+            packageDetails.classList.remove('active-panel');
+            codeViewer.classList.remove('active-panel');
+
+            if (name === 'package.json') {
+                packageDetails.style.display = 'block';
+                packageDetails.classList.add('active-panel');
+            } else if (name === 'env.example' || name === '.env.example') {
+                codeViewer.style.display = 'block';
+                codeViewer.classList.add('active-panel');
+            } else {
+                riskAssessment.style.display = 'block';
+                riskAssessment.classList.add('active-panel');
+            }
+            refreshIcons();
+        };
+
+        window.resetSidebarPanel = function() {
+            const riskAssessment = document.getElementById('sidebar-risk-assessment');
+            const packageDetails = document.getElementById('sidebar-package-details');
+            const codeViewer = document.getElementById('sidebar-code-viewer');
+
+            riskAssessment.style.display = 'block';
+            packageDetails.style.display = 'none';
+            codeViewer.style.display = 'none';
+
+            riskAssessment.classList.add('active-panel');
+            packageDetails.classList.remove('active-panel');
+            codeViewer.classList.remove('active-panel');
+        };
+
+        window.fixDependency = function(name) {
+            showNotification(`Doria is opening a PR to upgrade ${name} and resolve security alerts...`);
+        };
+
+        window.fixAllDependencies = function() {
+            showNotification(`Doria is fixing all 3 vulnerable dependencies. Check your PR tab in a moment!`);
+        };
+
+        window.fixSecrets = function() {
+            showNotification(`Doria is opening a PR to scrub secrets from .env.example and place placeholder configs.`);
+        };
+
+        function renderThreatsTab(repo) {
+            const body = document.getElementById('table-threats-body');
+            body.innerHTML = "";
+
+            if (repo.threats.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 40px;">No threats found inside ${repo.name} codebase. All checks are verified clean.</td></tr>`;
+                return;
+            }
+
+            repo.threats.forEach((threat, index) => {
+                const tr = `
+                    <tr>
+                        <td>
+                            <div class="threat-title">${threat.title}</div>
+                            <div class="threat-desc">${threat.desc}</div>
+                        </td>
+                        <td><span class="status-pill pill-danger">${threat.severity}</span></td>
+                        <td><code class="mono" style="font-size:11px;">${threat.file}</code></td>
+                        <td style="text-align: right;">
+                            <button class="btn-github" style="padding:4px 8px; font-size:11px; display:inline-block;" onclick="remediateThreat('${index}')">
+                                Remediate
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                body.insertAdjacentHTML('beforeend', tr);
+            });
+        }
+
+        function renderDependenciesTab(repo, filter = 'all') {
+            const body = document.getElementById('table-deps-body');
+            body.innerHTML = "";
+
+            repo.dependencies.forEach(dep => {
+                if (filter === 'outdated' && dep.status !== 'OUTDATED') return;
+
+                const statePill = dep.status === 'SAFE' 
+                    ? `<span class="status-pill pill-safe">SAFE</span>` 
+                    : `<span class="status-pill pill-warn">OUTDATED</span>`;
+                const tr = `
+                    <tr>
+                        <td><strong style="color:var(--text-primary);">${dep.name}</strong></td>
+                        <td class="mono">${dep.version}</td>
+                        <td>${statePill}</td>
+                        <td><span style="color:var(--text-muted); font-size:11.5px;">${dep.license}</span></td>
+                    </tr>
+                `;
+                body.insertAdjacentHTML('beforeend', tr);
+            });
+        }
+
+        window.remediateThreat = function(index) {
+            const currentRepo = codebasesData[currentActiveRepoKey];
+            const originalThreatName = currentRepo.threats[index].title;
+            
+            currentRepo.threats.splice(index, 1);
+            currentRepo.threatsCount = currentRepo.threats.length;
+
+            if (currentRepo.threatsCount === 0) {
+                currentRepo.riskLabel = "LOW";
+                currentRepo.riskPercent = 15;
+            } else {
+                currentRepo.riskPercent = Math.max(20, currentRepo.riskPercent - 20);
+            }
+
+            currentRepo.files = currentRepo.files.map(f => {
+                if (f.status === 'THREATS') {
+                    return { ...f, status: "SAFE", msg: "Verified structural config" };
+                }
+                return f;
+            });
+
+            showNotification(`Successfully patched vulnerability context: ${originalThreatName}`);
+            
+            openRepoDetailView(currentActiveRepoKey);
+            renderConnectedCodebases(document.getElementById('repo-search').value);
+            refreshIcons();
+        };
+
+        window.switchToDepsAndFilterOutdated = function() {
+            const depsTab = document.querySelector('#detail-tab-row .repo-tab[data-tab="dependencies"]');
+            if (depsTab) {
+                depsTab.click();
+                renderDependenciesTab(codebasesData[currentActiveRepoKey], 'outdated');
+            }
+        };
+
+        function openRepoDetailView(key) {
+            currentActiveRepoKey = key;
+            const repo = codebasesData[key];
+
+            document.querySelectorAll('#detail-tab-row .repo-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('#detail-tab-row .repo-tab[data-tab="code"]').classList.add('active');
+            
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-code').classList.add('active');
+
+            resetSidebarPanel();
+
+            document.getElementById('detail-owner-name').innerText = repo.owner;
+            document.getElementById('detail-repo-name').innerText = repo.name;
+            document.getElementById('detail-visibility').innerText = repo.visibility;
+            document.getElementById('detail-commit-sha').innerText = repo.commit;
+            document.getElementById('detail-scan-time').innerText = `Last scanned ${repo.lastScanned}`;
+
+            const badgesContainer = document.getElementById('detail-badges-container');
+            badgesContainer.innerHTML = repo.languages.map(lang => {
+                const lKey = lang.toLowerCase().replace('.', '');
+                const logoSvg = techLogos[lKey] || '';
+                const cleanClass = lang.toLowerCase() === 'typescript' ? 'badge-ts' : 
+                                   lang.toLowerCase() === 'node.js' ? 'badge-node' :
+                                   lang.toLowerCase() === 'python' ? 'badge-py' :
+                                   lang.toLowerCase() === 'fastapi' ? 'badge-fastapi' : 'badge-pytorch';
+                return `<span class="repo-badge ${cleanClass}">${logoSvg}${lang}</span>`;
+            }).join('');
+
+            const threatsCounter = document.getElementById('badge-threats-count');
+            threatsCounter.innerText = repo.threatsCount;
+            if (repo.threatsCount > 0) {
+                threatsCounter.classList.add('danger');
+            } else {
+                threatsCounter.classList.remove('danger');
+            }
+            document.getElementById('badge-deps-count').innerText = repo.totalDeps;
+
+            const sidebarThreats = document.getElementById('sidebar-stat-threats');
+            const sidebarOutdated = document.getElementById('sidebar-stat-outdated');
+            const sidebarDeps = document.getElementById('sidebar-stat-deps');
+
+            // Dynamic Zero active threats check to conditionally style green with shield-check icon
+            if (repo.threatsCount > 0) {
+                sidebarThreats.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="shield-alert" style="width:16px;height:16px; color: var(--threat-red);"></i> 
+                        <span><strong>${repo.threatsCount}</strong> Active Threats Blocked</span>
+                    </div>`;
+                sidebarThreats.className = 'stat-item danger sidebar-widget-item';
+            } else {
+                sidebarThreats.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="shield-check" style="width:16px;height:16px; color: var(--safe-green);"></i> 
+                        <span><strong>0</strong> Active Threats Blocked</span>
+                    </div>`;
+                sidebarThreats.className = 'stat-item safe sidebar-widget-item';
+            }
+            
+            sidebarOutdated.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer;" onclick="switchToDepsAndFilterOutdated()">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i data-lucide="history" style="width:16px;height:16px;"></i> 
+                        <span><strong>${repo.outdatedCount}</strong> Outdated Dependencies</span>
+                    </div>
+                    <i data-lucide="chevron-right" style="width:14px; height:14px; color: var(--text-muted);"></i>
+                </div>
+            `;
+            sidebarDeps.innerHTML = `<div style="display: flex; align-items: center; gap: 8px;"><i data-lucide="box" style="width:16px;height:16px; color: var(--text-muted);"></i> <span><strong>${repo.totalDeps}</strong> Total Dependencies Monitored</span></div>`;
+
+            if (repo.outdatedCount > 0) {
+                sidebarOutdated.className = 'stat-item warning sidebar-widget-item';
+            } else {
+                sidebarOutdated.className = 'stat-item sidebar-widget-item neutral';
+            }
+            sidebarDeps.className = 'stat-item sidebar-widget-item neutral';
+
+            const rBadge = document.getElementById('widget-risk-badge');
+            rBadge.className = `risk-badge ${repo.riskLabel.toLowerCase()}`;
+            rBadge.innerText = `${repo.riskLabel} - ${repo.riskPercent}%`;
+
+            const fillBar = document.getElementById('widget-risk-fill');
+            fillBar.className = `risk-bar-fill ${repo.riskLabel.toLowerCase()}`;
+            fillBar.style.width = '0%';
+            setTimeout(() => {
+                fillBar.style.width = `${repo.riskPercent}%`;
+            }, 50);
+
+            renderFilesTab(repo);
+            renderThreatsTab(repo);
+            renderDependenciesTab(repo);
+
+            document.getElementById('view-codebases').classList.remove('active');
+            document.getElementById('view-repo-detail').classList.add('active');
+            refreshIcons();
+        }
+
+        document.getElementById('btn-manual-scan').addEventListener('click', () => {
+            const btn = document.getElementById('btn-manual-scan');
+            btn.innerHTML = `<i data-lucide="loader-2" style="width:14px; animation: spin 1s linear infinite;"></i> Running Scan...`;
+            refreshIcons();
+
+            setTimeout(() => {
+                btn.innerHTML = `<i data-lucide="play" style="width:14px; fill:white;"></i> Run Security Scan`;
+                const repo = codebasesData[currentActiveRepoKey];
+                repo.lastScanned = "Just now";
+                document.getElementById('detail-scan-time').innerText = "Last scanned Just now";
+                showNotification(`Manual scan finalized for ${repo.name}. Integrity signatures updated.`);
+                renderConnectedCodebases(document.getElementById('repo-search').value);
+                refreshIcons();
+            }, 1800);
+        });
+
+        document.getElementById('repo-search').addEventListener('input', (e) => {
+            renderConnectedCodebases(e.target.value);
+        });
+
+        document.querySelectorAll('#detail-tab-row .repo-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('#detail-tab-row .repo-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabId = tab.getAttribute('data-tab');
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                
+                if (tabId === 'code') document.getElementById('panel-code').classList.add('active');
+                if (tabId === 'threats') document.getElementById('panel-threats').classList.add('active');
+                if (tabId === 'dependencies') {
+                    document.getElementById('panel-dependencies').classList.add('active');
+                    renderDependenciesTab(codebasesData[currentActiveRepoKey]);
+                }
+                if (tabId === 'settings') document.getElementById('panel-settings').classList.add('active');
+            });
+        });
+
+        document.getElementById('btn-back').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('view-repo-detail').classList.remove('active');
+            document.getElementById('view-codebases').classList.add('active');
+            if (isGitHubConnected) {
+                renderConnectedCodebases(document.getElementById('repo-search').value);
+            }
+        });
+
+        document.getElementById('slack-notif-switch').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                showNotification("Slack notification delivery enabled for security triggers.");
+            } else {
+                showNotification("Slack warnings delivery channel suspended.");
+            }
+        });
+
+        updateGitHubState();
+    </script>
+</body>
+</html>
