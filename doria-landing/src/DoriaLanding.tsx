@@ -41,7 +41,7 @@ const styles = `
   @media (prefers-reduced-motion), (max-width: 768px) {
     @keyframes fade-up {
       from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0);    }
+      to   { opacity: 1; transform: translateY(0); }
     }
   }
 
@@ -132,13 +132,9 @@ const styles = `
     inset: 0;
     width: 100%;
     height: 100%;
-    /* isolate compositing to this subtree */
+    pointer-events: none;
     isolation: isolate;
   }
-
-  /* fade spline in gracefully once loaded */
-  .hero-spline.is-ready { animation: fade-in-spline 0.8s ease forwards; }
-  @keyframes fade-in-spline { from { opacity: 0; } to { opacity: 1; } }
 
   .hero-overlay {
     position: absolute;
@@ -389,41 +385,7 @@ const styles = `
   .footer-gh:hover { color: var(--foreground); }
 `;
 
-/* ─── icons ─────────────────────────────────────────────────────────── */
-function GridIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <rect
-        x="1"
-        y="1"
-        width="6"
-        height="6"
-        rx="1.5"
-        fill="currentColor"
-        opacity="0.7"
-      />
-      <rect
-        x="11"
-        y="1"
-        width="6"
-        height="6"
-        rx="1.5"
-        fill="currentColor"
-        opacity="0.4"
-      />
-      <rect
-        x="1"
-        y="11"
-        width="6"
-        height="6"
-        rx="1.5"
-        fill="currentColor"
-        opacity="0.4"
-      />
-      <rect x="11" y="11" width="6" height="6" rx="1.5" fill="currentColor" />
-    </svg>
-  );
-}
+/* ─── icons ──────────────────────────────────────────────────────────── */
 function GithubIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -432,12 +394,8 @@ function GithubIcon() {
   );
 }
 
-/* ─── memoised Spline so parent re-renders never unmount/remount it ── */
-const SplineBackground = memo(function SplineBackground({
-  onLoad,
-}: {
-  onLoad: () => void;
-}) {
+/* ─── memoised Spline — never re-mounts on parent state changes ──────── */
+const SplineBackground = memo(function SplineBackground() {
   return (
     <Spline
       scene="https://prod.spline.design/Slk6b8kz3LRlKiyk/scene.splinecode"
@@ -508,24 +466,37 @@ const tableRows = [
 ];
 
 function Cell({ val, isDoria }: { val: boolean; isDoria: boolean }) {
-  const mark = val ? (
-    <span
-      className={isDoria ? "" : "check"}
-      style={isDoria ? { color: "var(--primary)" } : {}}
-    >
-      ✓
-    </span>
-  ) : (
-    <span className="cross">✗</span>
+  return (
+    <td className={isDoria ? "doria-cell" : ""}>
+      {val ? (
+        <span
+          className={isDoria ? "" : "check"}
+          style={isDoria ? { color: "var(--primary)" } : {}}
+        >
+          ✓
+        </span>
+      ) : (
+        <span className="cross">✗</span>
+      )}
+    </td>
   );
-  return <td className={isDoria ? "doria-cell" : ""}>{mark}</td>;
 }
 
-/* ─── main component ─────────────────────────────────────────────────── */
+/* ─── logo wordmark ──────────────────────────────────────────────────── */
+function Logo() {
+  return (
+    <>
+      <BrickWallShield size={20} strokeWidth={1.5} color="currentColor" />
+      <span>
+        <span className="logo-d">D</span>ORIA
+      </span>
+    </>
+  );
+}
+
+/* ─── main ───────────────────────────────────────────────────────────── */
 export default function DoriaLanding() {
-  // mount Spline only after the browser is idle post-load
   const [showSpline, setShowSpline] = useState(false);
-  const [splineReady, setSplineReady] = useState(false);
 
   useEffect(() => {
     const mount = () => {
@@ -537,7 +508,6 @@ export default function DoriaLanding() {
         setTimeout(() => setShowSpline(true), 300);
       }
     };
-
     if (document.readyState === "complete") {
       mount();
     } else {
@@ -552,10 +522,7 @@ export default function DoriaLanding() {
       {/* NAVBAR */}
       <nav>
         <a href="https://github.com/elviscgn/Doria" className="logo">
-          <BrickWallShield size={20} strokeWidth={1.5} color="currentColor" />
-          <span>
-            <span className="logo-d">D</span>ORIA
-          </span>
+          <Logo />
         </a>
         <ul className="nav-links">
           <li>
@@ -586,11 +553,7 @@ export default function DoriaLanding() {
 
       {/* HERO */}
       <section className="hero">
-        <div className={`hero-spline${splineReady ? " is-ready" : ""}`}>
-          {showSpline && (
-            <SplineBackground onLoad={() => setSplineReady(true)} />
-          )}
-        </div>
+        <div className="hero-spline">{showSpline && <SplineBackground />}</div>
         <div className="hero-overlay" />
 
         <div className="hero-content">
@@ -768,11 +731,7 @@ export default function DoriaLanding() {
       {/* FOOTER */}
       <footer>
         <a href="https://github.com/elviscgn/Doria" className="footer-wordmark">
-          <BrickWallShield size={20} strokeWidth={1.5} color="currentColor" />
-
-          <span>
-            <span style={{ color: "var(--primary)" }}>D</span>ORIA
-          </span>
+          <Logo />
         </a>
         <span className="footer-tagline">Doria means patrol in Swahili</span>
         <a href="https://github.com/elviscgn/Doria" className="footer-gh">
